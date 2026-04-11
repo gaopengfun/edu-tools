@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 import type { CheckStep, OssToken } from '../types'
 
 const TOKEN_API =
-  'https://zytestaliyun.ceshiservice.cn/api-dihw-smarthw/token/uploadTokenNew?type=pyjLog&path=pyjLog&schoolId=1500000200068840595'
+  '/api-dihw-smarthw/token/uploadTokenNew?type=pyjLog&path=pyjLog&schoolId=1500000200068840595'
 
 const TIMEOUT_MS = 30_000
 
