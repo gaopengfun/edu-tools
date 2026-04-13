@@ -13,4 +13,5 @@ export const tools: ToolMeta[] = [
     description: '分步检测公网与阿里云 OSS 上传链路的可用性',
     path: '/oss-check',
   },
+  // @tool-scaffold:tools
 ];

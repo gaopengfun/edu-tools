@@ -12,7 +12,8 @@
     "lint": "run-s lint:*",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "oxfmt src/"
+    "format": "oxfmt src/",
+    "new:tool": "node scripts/create-tool.mjs"
   },
   "dependencies": {
     "ali-oss": "^6.23.0",

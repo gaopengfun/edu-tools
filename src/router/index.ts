@@ -11,8 +11,9 @@ const router = createRouter({
     {
       path: '/oss-check',
       name: 'oss-check',
-      component: () => import('@/views/oss-check/OssCheck.vue')
-    }
+      component: () => import('@/views/oss-check/OssCheck.vue'),
+    },
+    // @tool-scaffold:routes
   ]
 });
 
