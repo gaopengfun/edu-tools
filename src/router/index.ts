@@ -5,7 +5,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/oss-check'
+      name: 'tool-list',
+      component: () => import('@/views/tool-list/ToolList.vue')
     },
     {
       path: '/oss-check',
