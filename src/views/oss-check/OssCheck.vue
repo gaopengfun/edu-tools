@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useOssCheck } from './composables/useOssCheck'
-import type { StepStatus } from './types'
+import { computed } from 'vue';
+import { useOssCheck } from './composables/useOssCheck';
+import type { StepStatus } from './types';
 
-const { steps, running, summary, startCheck } = useOssCheck()
+const { steps, running, summary, startCheck } = useOssCheck();
 
 const statusLabel: Record<StepStatus, string> = {
   pending: '等待中',
   running: '检测中...',
   passed: '通过',
   failed: '失败',
-  skipped: '已跳过',
-}
+  skipped: '已跳过'
+};
 
-const started = computed(() => steps.value.some((s) => s.status !== 'pending'))
+const started = computed(() => steps.value.some((s) => s.status !== 'pending'));
 </script>
 
 <template>
@@ -34,13 +34,19 @@ const started = computed(() => steps.value.some((s) => s.status !== 'pending'))
           <span v-if="step.status === 'pending'" class="icon-pending"></span>
           <span v-else-if="step.status === 'running'" class="icon-running"></span>
           <span v-else-if="step.status === 'passed'" class="icon-passed">
-            <svg width="20" height="20" viewBox="0 0 20 20"><path d="M7.5 13.5L4 10l-1 1 4.5 4.5 9.5-9.5-1-1z" fill="currentColor"/></svg>
+            <svg width="20" height="20" viewBox="0 0 20 20">
+              <path d="M7.5 13.5L4 10l-1 1 4.5 4.5 9.5-9.5-1-1z" fill="currentColor" />
+            </svg>
           </span>
           <span v-else-if="step.status === 'failed'" class="icon-failed">
-            <svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <svg width="20" height="20" viewBox="0 0 20 20">
+              <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" fill="none" />
+            </svg>
           </span>
           <span v-else class="icon-skipped">
-            <svg width="20" height="20" viewBox="0 0 20 20"><line x1="5" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width="2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 20 20">
+              <line x1="5" y1="10" x2="15" y2="10" stroke="currentColor" stroke-width="2" />
+            </svg>
           </span>
         </div>
         <div class="step-info">
@@ -48,13 +54,19 @@ const started = computed(() => steps.value.some((s) => s.status !== 'pending'))
           <span v-if="step.error" class="step-error">{{ step.error }}</span>
         </div>
         <div class="step-result">
-          <span class="status-chip" :class="`chip-${step.status}`">{{ statusLabel[step.status] }}</span>
+          <span class="status-chip" :class="`chip-${step.status}`">{{
+            statusLabel[step.status]
+          }}</span>
           <span v-if="step.duration != null" class="step-duration">{{ step.duration }}ms</span>
         </div>
       </div>
     </div>
 
-    <div v-if="summary" class="summary-card" :class="summary.allPassed ? 'summary-passed' : 'summary-failed'">
+    <div
+      v-if="summary"
+      class="summary-card"
+      :class="summary.allPassed ? 'summary-passed' : 'summary-failed'"
+    >
       <div class="summary-title">{{ summary.allPassed ? '检测通过' : '检测未通过' }}</div>
       <div class="summary-detail">总耗时：{{ summary.totalDuration }}ms</div>
       <div v-if="!summary.allPassed" class="summary-failures">
@@ -83,7 +95,10 @@ const started = computed(() => steps.value.some((s) => s.status !== 'pending'))
   max-width: 600px;
   margin: 0 auto;
   padding: 32px 16px;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   color: var(--md-on-surface);
 }
 
@@ -120,11 +135,15 @@ const started = computed(() => steps.value.some((s) => s.status !== 'pending'))
   font-weight: 500;
   letter-spacing: 0.1px;
   cursor: pointer;
-  transition: box-shadow 0.2s, opacity 0.2s;
+  transition:
+    box-shadow 0.2s,
+    opacity 0.2s;
 }
 
 .md3-button:hover:not(:disabled) {
-  box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 1px 3px 1px rgba(0, 0, 0, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .md3-button:disabled {
@@ -143,7 +162,9 @@ const started = computed(() => steps.value.some((s) => s.status !== 'pending'))
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---- Steps Card ---- */
@@ -151,7 +172,9 @@ const started = computed(() => steps.value.some((s) => s.status !== 'pending'))
   margin-top: 24px;
   background: var(--md-surface);
   border-radius: 12px;
-  box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 1px 3px 1px rgba(0, 0, 0, 0.07),
+    0 1px 2px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -277,7 +300,9 @@ const started = computed(() => steps.value.some((s) => s.status !== 'pending'))
   margin-top: 20px;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 1px 3px 1px rgba(0, 0, 0, 0.07),
+    0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .summary-passed {
