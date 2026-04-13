@@ -38,3 +38,7 @@ Runs a 4-step sequential health check against Alibaba Cloud OSS from the browser
 - TypeScript is strict; Vue SFCs use `<script setup lang="ts">`. Vue-specific ESLint rules from `eslint-plugin-vue` apply.
 - Formatter is **oxfmt** (not Prettier — `eslint-config-prettier` is only present to disable conflicting stylistic rules). Semicolons and trailing commas are expected (see recent commits).
 - Commit messages follow Conventional Commits with **Chinese subject/body** (see user's global `CLAUDE.md`).
+
+## UI / UX (Material Design 3)
+
+Follow **Material Design 3** for new or changed UI: semantic color roles (primary / surface / on-surface, state layers), a clear type scale, consistent shape and spacing (8dp rhythm), MD3-style components and surfaces, short purposeful motion, and visible keyboard focus. Reuse existing app tokens and styles before adding new ones.
