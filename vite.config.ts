@@ -15,5 +15,7 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
+    // ali-oss SDK 单体约 680 kB，已在 oss-check 步骤 4 动态 import 按需加载，抬高阈值仅抑制警告
+    chunkSizeWarningLimit: 800,
   },
 });

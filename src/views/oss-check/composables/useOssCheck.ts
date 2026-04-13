@@ -2,6 +2,7 @@
 
 import { ref, computed } from 'vue';
 import OSS from 'ali-oss';
+import { v4 as uuidv4 } from 'uuid';
 import type { CheckStep, OssToken } from '../types';
 
 const TOKEN_API =
@@ -12,8 +13,8 @@ const TIMEOUT_MS = 30_000;
 function createSteps(): CheckStep[] {
   return [
     { name: '公网连通性检测', status: 'pending' },
-    { name: 'OSS Endpoint 连通性检测', status: 'pending' },
-    { name: 'OSS PUT 协议检测', status: 'pending' },
+    { name: '作业 OSS 连通性检测', status: 'pending' },
+    { name: '作业 OSS PUT 协议检测', status: 'pending' },
     { name: '实际上传测试', status: 'pending' }
   ];
 }
@@ -114,10 +115,10 @@ export function useOssCheck() {
   async function checkUpload() {
     const token = await fetchToken();
     const contentType = 'application/octet-stream';
-    const blob = new Blob(['pyj-oss-check\r\n', crypto.getRandomValues(new Uint8Array(1024))], {
+    const blob = new Blob(['pyj-oss-check\r\n', `${new Date().toLocaleString()}\r\n`, uuidv4()], {
       type: contentType
     });
-    const objectKey = `${token.path}/pyj-oss-check-${Date.now()}`;
+    const objectKey = `${token.path}/pyj-oss-check-${uuidv4()}.txt`;
 
     const client = new OSS({
       region: token.region,

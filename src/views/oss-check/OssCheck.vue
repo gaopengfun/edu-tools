@@ -19,8 +19,8 @@ const started = computed(() => steps.value.some((s) => s.status !== 'pending'));
 <template>
   <div class="oss-check-page">
     <div class="page-header">
-      <h1 class="headline">阿里云 OSS 上传检测</h1>
-      <p class="subtitle">检测当前网络环境是否满足向阿里云 OSS 上传文件的条件</p>
+      <h1 class="headline">作业图片上传能力检测</h1>
+      <p class="subtitle">检测当前网络环境是否满足作业图片上传的条件</p>
     </div>
 
     <button class="md3-button" :disabled="running" @click="startCheck">
