@@ -48,6 +48,28 @@ export const useDictationStore = defineStore('dictation', () => {
     isPaused.value = false;
   }
 
+  function removeWord(index: number) {
+    if (index >= 0 && index < words.value.length) {
+      words.value.splice(index, 1);
+      words.value.forEach((w, i) => {
+        w.index = i;
+      });
+
+      // Adjust currentIndex if needed
+      if (currentIndex.value > index) {
+        currentIndex.value--;
+      } else if (currentIndex.value === index) {
+        // If removing the current word, reset to previous or -1
+        currentIndex.value = Math.max(-1, index - 1);
+      }
+
+      // If we removed the last word and currentIndex is now out of bounds
+      if (currentIndex.value >= words.value.length) {
+        currentIndex.value = words.value.length - 1;
+      }
+    }
+  }
+
   return {
     words,
     repeatCount,
@@ -59,6 +81,7 @@ export const useDictationStore = defineStore('dictation', () => {
     setConfig,
     setPlayState,
     updateWordTranslation,
-    resetPlayState
+    resetPlayState,
+    removeWord
   };
 });
