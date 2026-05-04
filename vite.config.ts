@@ -16,10 +16,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api/translate': {
-        target: 'https://openapi.youdao.com',
+      '/api-blog': {
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/translate/, '/api')
       }
     }
   },

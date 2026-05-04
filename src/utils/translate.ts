@@ -1,48 +1,56 @@
-import CryptoJS from 'crypto-js';
+const API_BASE_URL = import.meta.env.VITE_BLOG_API_BASE_URL || 'http://localhost:8080';
+const INTERNAL_TOKEN = import.meta.env.VITE_TRANSLATE_INTERNAL_TOKEN || '';
 
-function generateSign(appKey: string, query: string, salt: string, appSecret: string): string {
-  const str = appKey + query + salt + appSecret;
-  return CryptoJS.MD5(str).toString();
+// Validate configuration on module load
+if (!INTERNAL_TOKEN) {
+  console.warn(
+    '[translate] VITE_TRANSLATE_INTERNAL_TOKEN is not configured. ' +
+    'Translation requests will fail authentication. ' +
+    'Please set this variable in your .env.local file.'
+  );
 }
 
 export async function translateWord(word: string): Promise<string> {
-  const appKey = import.meta.env.VITE_YOUDAO_APP_KEY;
-  const appSecret = import.meta.env.VITE_YOUDAO_APP_SECRET;
-
-  if (!appKey || !appSecret) {
+  if (!word.trim()) {
     return '';
   }
 
-  const salt = Date.now().toString();
-  const sign = generateSign(appKey, word, salt, appSecret);
-
   try {
-    const response = await fetch('/api/translate', {
+    const response = await fetch(`${API_BASE_URL}/api-blog/translate/word`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json',
+        'X-Internal-Token': INTERNAL_TOKEN
       },
-      body: new URLSearchParams({
-        q: word,
-        from: 'en',
-        to: 'zh-CHS',
-        appKey,
-        salt,
-        sign
-      }),
+      body: JSON.stringify({ word }),
       signal: AbortSignal.timeout(10000)
     });
 
     if (!response.ok) {
+      console.error('[translate] translateWord failed:', {
+        word,
+        status: response.status,
+        statusText: response.statusText
+      });
       return '';
     }
 
     const data = await response.json();
-    if (data.errorCode === '0' && data.translation && data.translation.length > 0) {
-      return data.translation[0];
+
+    // Validate response structure
+    if (typeof data !== 'object' || data === null) {
+      console.error('[translate] Invalid response format:', { word, data });
+      return '';
     }
-    return '';
-  } catch {
+
+    if (!('translation' in data)) {
+      console.error('[translate] Missing translation field in response:', { word, data });
+      return '';
+    }
+
+    return data.translation || '';
+  } catch (error) {
+    console.error('[translate] translateWord error:', { word, error });
     return '';
   }
 }
@@ -56,15 +64,67 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 }
 
 export async function batchTranslate(words: string[]): Promise<string[]> {
+  if (words.length === 0) {
+    return [];
+  }
+
   const chunks = chunkArray(words, 50);
   const results: string[] = [];
 
   for (const chunk of chunks) {
-    const chunkResults = await Promise.all(
-      chunk.map(word => translateWord(word))
-    );
-    results.push(...chunkResults);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api-blog/translate/batch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Token': INTERNAL_TOKEN
+        },
+        body: JSON.stringify({ words: chunk }),
+        signal: AbortSignal.timeout(30000)
+      });
+
+      if (!response.ok) {
+        console.error('[translate] batchTranslate failed:', {
+          wordCount: chunk.length,
+          status: response.status,
+          statusText: response.statusText
+        });
+        results.push(...chunk.map(() => ''));
+        continue;
+      }
+
+      const data = await response.json();
+
+      // Validate response structure
+      if (typeof data !== 'object' || data === null) {
+        console.error('[translate] Invalid batch response format:', {
+          wordCount: chunk.length,
+          data
+        });
+        results.push(...chunk.map(() => ''));
+        continue;
+      }
+
+      if (!('translations' in data) || !Array.isArray(data.translations)) {
+        console.error('[translate] Missing or invalid translations field in batch response:', {
+          wordCount: chunk.length,
+          data
+        });
+        results.push(...chunk.map(() => ''));
+        continue;
+      }
+
+      results.push(...data.translations);
+    } catch (error) {
+      console.error('[translate] batchTranslate error:', {
+        wordCount: chunk.length,
+        error
+      });
+      results.push(...chunk.map(() => ''));
+    }
   }
 
   return results;
 }
+
+
