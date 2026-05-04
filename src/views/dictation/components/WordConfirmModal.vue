@@ -1,162 +1,88 @@
+<!-- src/views/dictation/components/WordConfirmModal.vue -->
 <script setup lang="ts">
 import type { WordItem } from '@/stores/dictation';
 
-interface Props {
-  words: WordItem[];
-  show: boolean;
-}
-
-interface Emits {
+const props = defineProps<{ words: WordItem[]; show: boolean }>();
+const emit = defineEmits<{
   (e: 'confirm'): void;
   (e: 'cancel'): void;
-}
-
-defineProps<Props>();
-const emit = defineEmits<Emits>();
-
-function handleConfirm() {
-  emit('confirm');
-}
-
-function handleCancel() {
-  emit('cancel');
-}
+  (e: 'remove', index: number): void;
+  (e: 'updateTranslation', index: number, translation: string): void;
+}>();
 </script>
 
 <template>
-  <div v-if="show" class="modal-overlay" @click="handleCancel">
-    <div class="modal-container" @click.stop>
-      <div class="modal-header">
-        <h2 class="modal-title">确认单词列表</h2>
-      </div>
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="props.show" class="fixed inset-0 z-50 flex items-center justify-center md:p-4"
+           @click="emit('cancel')">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/50" />
 
-      <div class="modal-body">
-        <div class="word-list">
-          <div
-            v-for="word in words"
-            :key="word.index"
-            class="word-item"
-          >
-            <span class="word-text">{{ word.text }}</span>
-            <span v-if="word.translation" class="word-translation">
-              {{ word.translation }}
-            </span>
+        <!-- Desktop: centered dialog / Mobile: bottom sheet -->
+        <div class="relative w-full md:max-w-[520px] md:rounded-2xl
+                    max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0
+                    max-md:rounded-t-2xl max-md:max-h-[85vh]
+                    bg-surface-container flex flex-col shadow-2xl"
+             @click.stop>
+
+          <!-- Mobile drag handle -->
+          <div class="flex justify-center pt-2 pb-0 md:hidden">
+            <div class="w-8 h-1 bg-outline-variant rounded-full" />
+          </div>
+
+          <!-- Header -->
+          <div class="flex items-center justify-between px-6 py-4 md:pt-5">
+            <h2 class="text-lg md:text-xl font-medium text-on-surface">确认单词列表</h2>
+            <span class="text-xs md:text-sm text-on-surface-variant">共 {{ props.words.length }} 个</span>
+          </div>
+
+          <!-- Word list -->
+          <div class="flex-1 overflow-y-auto px-6 pb-4">
+            <div class="flex flex-col gap-2">
+              <div v-for="(word, i) in props.words" :key="word.index"
+                class="flex items-center gap-3 p-3 bg-surface-container-high rounded-xl">
+                <span class="text-xs text-on-surface-variant min-w-5">{{ i + 1 }}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm md:text-[15px] font-medium text-on-surface">{{ word.text }}</div>
+                  <input
+                    :value="word.translation"
+                    @change="emit('updateTranslation', word.index, ($event.target as HTMLInputElement).value)"
+                    class="text-xs md:text-sm text-on-surface-variant bg-transparent border-b border-dashed
+                           border-transparent focus:border-primary outline-none w-full py-0.5"
+                    placeholder="点击编辑翻译"
+                  />
+                </div>
+                <button @click="emit('remove', word.index)"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center text-red-700
+                         opacity-50 hover:opacity-100 hover:bg-red-700/8 transition-all shrink-0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-surface-container-high
+                      flex gap-3 max-md:pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <button @click="emit('cancel')"
+              class="max-md:flex-1 px-6 py-2.5 rounded-xl text-sm font-medium
+                     md:bg-transparent md:text-primary md:hover:bg-primary/8
+                     max-md:border-[1.5px] max-md:border-outline-variant max-md:text-on-surface
+                     transition-colors">
+              返回修改
+            </button>
+            <button @click="emit('confirm')"
+              class="max-md:flex-1 px-6 py-2.5 rounded-xl text-sm font-medium
+                     bg-primary text-on-primary shadow-sm shadow-primary/30
+                     hover:shadow-md transition-all">
+              确认开始
+            </button>
           </div>
         </div>
       </div>
-
-      <div class="modal-footer">
-        <button @click="handleCancel" class="btn btn-secondary">
-          返回修改
-        </button>
-        <button @click="handleConfirm" class="btn btn-primary">
-          确认开始
-        </button>
-      </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 </template>
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-container {
-  background: var(--md-surface-container, #ffffff);
-  border-radius: 16px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--md-outline-variant, #c4c6d0);
-}
-
-.modal-title {
-  font-size: 20px;
-  font-weight: 500;
-  margin: 0;
-  color: var(--md-on-surface, #1a1c20);
-}
-
-.modal-body {
-  padding: 16px 24px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.word-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.word-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px;
-  background: var(--md-surface-container-high, #e8eaf6);
-  border-radius: 8px;
-}
-
-.word-text {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--md-on-surface, #1a1c20);
-}
-
-.word-translation {
-  font-size: 14px;
-  color: var(--md-on-surface-variant, #44474e);
-}
-
-.modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--md-outline-variant, #c4c6d0);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--md-primary, #1a73e8);
-}
-
-.btn-secondary:hover {
-  background: rgba(26, 115, 232, 0.08);
-}
-
-.btn-primary {
-  background: var(--md-primary, #1a73e8);
-  color: var(--md-on-primary, #ffffff);
-}
-
-.btn-primary:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-</style>
-
