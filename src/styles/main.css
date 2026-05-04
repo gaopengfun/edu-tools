@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1a73e8;
+  --color-on-primary: #ffffff;
+  --color-surface: #f8f9ff;
+  --color-surface-container: #ffffff;
+  --color-surface-container-high: #e8eaf6;
+  --color-on-surface: #1a1c20;
+  --color-on-surface-variant: #44474e;
+  --color-outline: #74777f;
+  --color-outline-variant: #c4c6d0;
+}
+
+/* Bridge for existing components during transition */
+:root {
+  --md-primary: var(--color-primary);
+  --md-on-primary: var(--color-on-primary);
+  --md-surface: var(--color-surface);
+  --md-surface-container: var(--color-surface-container);
+  --md-surface-container-high: var(--color-surface-container-high);
+  --md-on-surface: var(--color-on-surface);
+  --md-on-surface-variant: var(--color-on-surface-variant);
+  --md-outline: var(--color-outline);
+  --md-outline-variant: var(--color-outline-variant);
+}
