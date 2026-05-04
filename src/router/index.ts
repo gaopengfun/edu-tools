@@ -13,6 +13,11 @@ const routes = {
       name: 'dictation',
       component: () => import('@/views/dictation/Dictation.vue'),
     },
+    {
+      path: '/dictation/player',
+      name: 'dictation-player',
+      component: () => import('@/views/dictation/DictationPlayer.vue'),
+    },
     // @tool-scaffold:routes
   ]
 }
