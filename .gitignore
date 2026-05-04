@@ -40,3 +40,4 @@ __screenshots__/
 
 # coding
 .playwright-mcp
+.env.local
