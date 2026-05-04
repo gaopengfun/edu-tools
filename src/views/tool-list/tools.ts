@@ -8,10 +8,10 @@ export interface ToolMeta {
 
 export const tools: ToolMeta[] = [
   {
-    name: 'oss-check',
-    title: 'OSS 可用性检测',
-    description: '分步检测公网与阿里云 OSS 上传链路的可用性',
-    path: '/oss-check',
+    name: 'dictation',
+    title: '单词听写',
+    description: '单词听写，根据输入单词，自动播报',
+    path: '/dictation',
   },
   // @tool-scaffold:tools
 ];

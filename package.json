@@ -1,5 +1,5 @@
 {
-  "name": "x-tools",
+  "name": "edu-tools",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -17,10 +17,12 @@
     "new:tool": "node scripts/create-tool.mjs"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.2.4",
     "pinia": "^3.0.4",
-    "uuid": "^13.0.0",
-    "vue": "^3.5.32",
-    "vue-router": "^5.0.4"
+    "tailwindcss": "^4.2.4",
+    "uuid": "^13.0.1",
+    "vue": "^3.5.33",
+    "vue-router": "^5.0.6"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
@@ -29,7 +31,7 @@
     "@vitejs/plugin-vue": "^6.0.6",
     "@vue/eslint-config-typescript": "^14.7.0",
     "@vue/tsconfig": "^0.9.1",
-    "eslint": "^10.2.0",
+    "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-oxlint": "~1.57.0",
     "eslint-plugin-vue": "~10.8.0",
@@ -37,10 +39,10 @@
     "npm-run-all2": "^8.0.4",
     "oxfmt": "^0.42.0",
     "oxlint": "~1.57.0",
-    "typescript": "~6.0.2",
-    "vite": "^8.0.8",
+    "typescript": "~6.0.3",
+    "vite": "^8.0.10",
     "vite-plugin-vue-devtools": "^8.1.1",
-    "vue-tsc": "^3.2.6"
+    "vue-tsc": "^3.2.8"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

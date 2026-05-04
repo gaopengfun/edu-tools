@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-const router = createRouter({
+const routes = {
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
@@ -9,12 +9,14 @@ const router = createRouter({
       component: () => import('@/views/tool-list/ToolList.vue')
     },
     {
-      path: '/oss-check',
-      name: 'oss-check',
-      component: () => import('@/views/oss-check/OssCheck.vue'),
+      path: '/dictation',
+      name: 'dictation',
+      component: () => import('@/views/dictation/Dictation.vue'),
     },
     // @tool-scaffold:routes
   ]
-});
+}
+
+const router = createRouter(routes);
 
 export default router;
