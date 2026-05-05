@@ -20,9 +20,9 @@ const emit = defineEmits<{
         <div class="absolute inset-0 bg-black/50" />
 
         <!-- Desktop: centered dialog / Mobile: bottom sheet -->
-        <div class="relative w-full md:max-w-[520px] md:rounded-2xl
+        <div class="relative w-full max-h-[85vh] md:max-w-[520px] md:rounded-2xl
                     max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0
-                    max-md:rounded-t-2xl max-md:max-h-[85vh]
+                    max-md:rounded-t-2xl
                     bg-surface-container flex flex-col shadow-2xl"
              @click.stop>
 

@@ -18,6 +18,9 @@ const isLoading = ref(false);
 const showModal = ref(false);
 const previewWords = ref<WordItem[]>([]);
 
+// mock data, 自测使用，暂时不要删除
+wordInput.value = 'apple,banana,orange、clever、naughty、enjoy、want、need、everyone、go';
+
 async function handleLoadWords() {
   const text = wordInput.value.trim();
   if (!text) return;
