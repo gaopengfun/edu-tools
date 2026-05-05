@@ -83,19 +83,23 @@ const emit = defineEmits<{
           </div>
 
           <!-- Footer -->
-          <div class="px-6 py-4 border-t border-surface-container-high
-                      flex gap-3 max-md:pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div class="px-6 py-4 flex gap-3
+                      max-md:pb-[max(1rem,env(safe-area-inset-bottom))]">
             <button @click="emit('cancel')"
-              class="max-md:flex-1 px-6 py-2.5 rounded-xl text-sm font-medium
-                     md:bg-transparent md:text-primary md:hover:bg-primary/8
-                     max-md:border-[1.5px] max-md:border-outline-variant max-md:text-on-surface
-                     transition-colors">
+              class="max-md:flex-1 px-7 h-12 rounded-full text-sm font-medium
+                     bg-white/80 backdrop-blur-sm shadow-md shadow-sky-200/40
+                     text-slate-600 hover:bg-white active:scale-95
+                     transition-all">
               返回修改
             </button>
-            <button @click="emit('confirm')"
-              class="max-md:flex-1 px-6 py-2.5 rounded-xl text-sm font-medium
-                     bg-primary text-on-primary shadow-sm shadow-primary/30
-                     hover:shadow-md transition-all">
+            <button @click="emit('confirm')" :disabled="props.words.length === 0"
+              class="max-md:flex-1 px-7 h-12 rounded-full text-sm font-medium
+                     bg-gradient-to-br from-sky-400 to-emerald-400
+                     shadow-lg shadow-sky-400/40 text-white
+                     hover:scale-[1.02] active:scale-[0.98]
+                     disabled:opacity-50 disabled:saturate-50
+                     disabled:cursor-not-allowed disabled:hover:scale-100
+                     transition-all">
               确认开始
             </button>
           </div>
