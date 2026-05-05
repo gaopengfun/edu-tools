@@ -34,29 +34,46 @@ const emit = defineEmits<{
 
           <!-- Header -->
           <div class="flex items-center justify-between px-6 py-4 md:pt-5">
-            <h2 class="text-lg md:text-xl font-medium text-on-surface">确认单词列表</h2>
-            <span class="text-xs md:text-sm text-on-surface-variant">共 {{ props.words.length }} 个</span>
+            <h2 class="flex items-center gap-2 text-lg md:text-xl font-semibold text-slate-700">
+              <svg class="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2l2.9 7h7.1l-5.7 4.4 2.2 7.1L12 16l-6.5 4.5 2.2-7.1L2 9h7.1z" />
+              </svg>
+              <span>确认单词列表</span>
+            </h2>
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full
+                         bg-amber-100 text-amber-700 text-xs font-medium">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+              </svg>
+              <span>共 {{ props.words.length }} 个</span>
+            </span>
           </div>
 
           <!-- Word list -->
           <div class="flex-1 overflow-y-auto px-6 pb-4">
             <div class="flex flex-col gap-2">
               <div v-for="(word, i) in props.words" :key="word.index"
-                class="flex items-center gap-3 p-3 bg-surface-container-high rounded-xl">
-                <span class="text-xs text-on-surface-variant min-w-5">{{ i + 1 }}</span>
+                class="flex items-center gap-3 p-3.5 rounded-2xl
+                       bg-sky-50/70 hover:bg-sky-100/80 border border-white/60
+                       transition-colors">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full
+                             bg-white text-sky-600 text-xs font-medium tabular-nums shrink-0">
+                  {{ i + 1 }}
+                </span>
                 <div class="flex-1 min-w-0">
-                  <div class="text-sm md:text-[15px] font-medium text-on-surface">{{ word.text }}</div>
+                  <div class="text-sm md:text-[15px] font-semibold text-slate-700">{{ word.text }}</div>
                   <input
                     :value="word.translation"
                     @change="emit('updateTranslation', word.index, ($event.target as HTMLInputElement).value)"
-                    class="text-xs md:text-sm text-on-surface-variant bg-transparent border-b border-dashed
-                           border-transparent focus:border-primary outline-none w-full py-0.5"
+                    class="text-xs md:text-sm text-slate-500 bg-transparent border-b border-dashed
+                           border-transparent focus:border-sky-400 outline-none w-full py-0.5
+                           placeholder:text-slate-400"
                     placeholder="点击编辑翻译"
                   />
                 </div>
                 <button @click="emit('remove', word.index)"
-                  class="w-8 h-8 rounded-lg flex items-center justify-center text-red-700
-                         opacity-50 hover:opacity-100 hover:bg-red-700/8 transition-all shrink-0">
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-rose-500
+                         opacity-60 hover:opacity-100 hover:bg-rose-50 transition-all shrink-0">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                   </svg>
