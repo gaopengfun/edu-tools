@@ -7,6 +7,7 @@ import { batchTranslate } from '@/utils/translate';
 import WordInput from './components/WordInput.vue';
 import PlaybackSettings from './components/PlaybackSettings.vue';
 import WordConfirmModal from './components/WordConfirmModal.vue';
+import DecorativeBackground from './components/DecorativeBackground.vue';
 
 const router = useRouter();
 const store = useDictationStore();
@@ -56,31 +57,38 @@ function handleConfirm() {
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto px-4 py-8 md:py-10 text-on-surface">
-    <header class="mb-8">
-      <h1 class="text-2xl md:text-[28px] font-normal leading-tight">单词听写</h1>
-      <p class="text-sm text-on-surface-variant mt-1">输入单词列表，自动播报朗读</p>
-    </header>
+  <div class="min-h-dvh relative overflow-hidden
+              bg-gradient-to-b from-sky-100 via-sky-50 to-emerald-100">
+    <DecorativeBackground />
 
-    <div class="bg-surface-container border border-outline-variant rounded-2xl p-4 md:p-6">
-      <WordInput v-model="wordInput" :disabled="isLoading" />
+    <div class="relative z-10 max-w-2xl mx-auto px-4 py-8 md:py-10">
+      <header class="mb-8">
+        <h1 class="text-2xl md:text-[28px] font-semibold text-slate-700 leading-tight">
+          单词听写
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">输入单词列表，自动播报朗读</p>
+      </header>
 
-      <PlaybackSettings v-model:repeat-count="repeatCount" v-model:speech-rate="speechRate"
-        :disabled="isLoading" class="mt-5" />
+      <div class="bg-surface-container border border-outline-variant rounded-2xl p-4 md:p-6">
+        <WordInput v-model="wordInput" :disabled="isLoading" />
 
-      <button @click="handleLoadWords"
-        :disabled="!wordInput.trim() || isLoading"
-        class="w-full mt-6 py-3.5 rounded-xl text-[15px] font-medium
-               bg-primary text-on-primary shadow-sm shadow-primary/30
-               hover:shadow-md active:scale-[0.98]
-               disabled:opacity-38 disabled:cursor-not-allowed disabled:shadow-none
-               transition-all duration-200">
-        {{ isLoading ? '加载中...' : '加载单词' }}
-      </button>
+        <PlaybackSettings v-model:repeat-count="repeatCount" v-model:speech-rate="speechRate"
+          :disabled="isLoading" class="mt-5" />
+
+        <button @click="handleLoadWords"
+          :disabled="!wordInput.trim() || isLoading"
+          class="w-full mt-6 py-3.5 rounded-xl text-[15px] font-medium
+                 bg-primary text-on-primary shadow-sm shadow-primary/30
+                 hover:shadow-md active:scale-[0.98]
+                 disabled:opacity-38 disabled:cursor-not-allowed disabled:shadow-none
+                 transition-all duration-200">
+          {{ isLoading ? '加载中...' : '加载单词' }}
+        </button>
+      </div>
+
+      <WordConfirmModal :words="previewWords" :show="showModal"
+        @confirm="handleConfirm" @cancel="showModal = false"
+        @remove="handleRemoveWord" @update-translation="handleUpdateTranslation" />
     </div>
-
-    <WordConfirmModal :words="previewWords" :show="showModal"
-      @confirm="handleConfirm" @cancel="showModal = false"
-      @remove="handleRemoveWord" @update-translation="handleUpdateTranslation" />
   </div>
 </template>
