@@ -17,18 +17,19 @@ const emit = defineEmits<{
       <div v-if="props.show" class="fixed inset-0 z-50 flex items-center justify-center md:p-4"
            @click="emit('cancel')">
         <!-- Overlay -->
-        <div class="absolute inset-0 bg-black/50" />
+        <div class="modal-overlay absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
 
-        <!-- Desktop: centered dialog / Mobile: bottom sheet -->
-        <div class="relative w-full max-h-[85vh] md:max-w-[520px] md:rounded-2xl
+        <!-- Card / Bottom sheet -->
+        <div class="modal-card relative w-full max-h-[85vh] md:max-w-[560px] md:rounded-3xl
                     max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0
-                    max-md:rounded-t-2xl
-                    bg-surface-container flex flex-col shadow-2xl"
+                    max-md:rounded-t-3xl
+                    bg-white/90 backdrop-blur-md shadow-2xl shadow-sky-300/30
+                    flex flex-col"
              @click.stop>
 
           <!-- Mobile drag handle -->
-          <div class="flex justify-center pt-2 pb-0 md:hidden">
-            <div class="w-8 h-1 bg-outline-variant rounded-full" />
+          <div class="flex justify-center pt-3 pb-0 md:hidden">
+            <div class="w-10 h-1 rounded-full bg-gradient-to-r from-sky-300 to-emerald-300" />
           </div>
 
           <!-- Header -->
@@ -86,3 +87,23 @@ const emit = defineEmits<{
     </Transition>
   </Teleport>
 </template>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 150ms ease-out;
+}
+.modal-enter-active .modal-card,
+.modal-leave-active .modal-card {
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-enter-from .modal-card,
+.modal-leave-to .modal-card {
+  opacity: 0;
+  transform: scale(0.95) translateY(8px);
+}
+</style>
