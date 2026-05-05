@@ -19,6 +19,14 @@ const displayIndex = computed(() =>
   store.currentIndex < 0 ? 0 : store.currentIndex + 1
 );
 
+const previewWord = computed(() =>
+  currentWord.value ?? (store.words.length > 0 ? store.words[0] : null)
+);
+
+const showStartHint = computed(
+  () => !store.isPlaying && store.currentIndex < 0 && store.words.length > 0
+);
+
 function goBack() {
   stop();
   router.push('/dictation');
@@ -53,10 +61,45 @@ onMounted(() => {
       </div>
 
       <!-- Word display -->
-      <WordDisplay
-        :word="currentWord?.text"
-        :translation="currentWord?.translation"
-        :is-playing="isActivelyPlaying" />
+      <div class="relative flex-1 flex flex-col">
+        <WordDisplay
+          :word="previewWord?.text"
+          :translation="currentWord?.translation"
+          :is-playing="isActivelyPlaying" />
+
+        <!-- Initial-state overlay: tap to start -->
+        <button
+          v-if="showStartHint"
+          type="button"
+          @click="play"
+          aria-label="点击开始播报"
+          class="group absolute inset-0 z-20 flex items-center justify-center
+                 cursor-pointer focus:outline-none">
+          <span
+            class="absolute inset-0 bg-white/30 backdrop-blur-[2px]
+                   transition-colors group-hover:bg-white/40" />
+          <span
+            class="relative flex items-center gap-3 px-6 py-3 rounded-full
+                   bg-white/85 backdrop-blur-md
+                   shadow-lg shadow-sky-300/40
+                   ring-1 ring-white/60
+                   text-slate-700 text-base md:text-lg font-medium
+                   animate-hint-bob
+                   transition-transform duration-200
+                   group-hover:scale-105 group-active:scale-95
+                   group-focus-visible:ring-2 group-focus-visible:ring-sky-400">
+            <span
+              class="w-9 h-9 rounded-full flex items-center justify-center
+                     bg-gradient-to-br from-sky-400 to-emerald-400
+                     shadow shadow-sky-400/40 text-white">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+            点击开始播报
+          </span>
+        </button>
+      </div>
 
       <!-- Progress bar -->
       <ProgressBar :progress="progress" />

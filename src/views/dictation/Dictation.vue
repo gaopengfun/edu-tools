@@ -20,7 +20,7 @@ const showModal = ref(false);
 const previewWords = ref<WordItem[]>([]);
 
 // mock data, 自测使用，暂时不要删除
-wordInput.value = 'apple,banana,orange、clever、naughty、enjoy、want、need、everyone、go';
+// wordInput.value = 'apple,banana,orange、clever、naughty、enjoy、want、need、everyone、go';
 
 async function handleLoadWords() {
   const text = wordInput.value.trim();
@@ -57,8 +57,7 @@ function handleConfirm() {
 </script>
 
 <template>
-  <div class="min-h-dvh relative overflow-hidden
-              bg-gradient-to-b from-sky-100 via-sky-50 to-emerald-100">
+  <div class="min-h-dvh relative overflow-hidden bg-gradient-to-b from-sky-100 via-sky-50 to-emerald-100">
     <DecorativeBackground />
 
     <div class="relative z-10 max-w-2xl mx-auto px-4 py-8 md:py-10">

@@ -9,6 +9,9 @@ const WORD_INTERVAL_MS = 1000;
 export function useSpeechPlayer() {
   const store = useDictationStore();
 
+  // 单调递增的会话号；任一新的 playFrom 调用都会让先前的循环作废
+  let playSession = 0;
+
   const currentWord = computed(() => {
     if (store.currentIndex >= 0 && store.currentIndex < store.words.length) {
       return store.words[store.currentIndex];
@@ -34,7 +37,14 @@ export function useSpeechPlayer() {
       utterance.lang = 'en-US';
       utterance.rate = store.speechRate;
       utterance.onend = () => resolve();
-      utterance.onerror = (e) => reject(e);
+      utterance.onerror = (e) => {
+        // 用户主动中断（pause / prev / next / stop）走这里，不应视为播放失败
+        if (e.error === 'canceled' || e.error === 'interrupted') {
+          resolve();
+        } else {
+          reject(e);
+        }
+      };
       speechSynthesis.speak(utterance);
     });
   }
@@ -51,28 +61,44 @@ export function useSpeechPlayer() {
     }
   }
 
-  async function playNext() {
-    if (store.currentIndex >= store.words.length - 1) {
+  function isStale(session: number, index: number) {
+    return (
+      session !== playSession ||
+      !store.isPlaying ||
+      store.isPaused ||
+      store.currentIndex !== index
+    );
+  }
+
+  async function playFrom(index: number) {
+    if (index < 0 || index >= store.words.length) {
       stop();
       return;
     }
-    const nextIndex = store.currentIndex + 1;
-    store.setPlayState(true, false, nextIndex);
-    await loadTranslation(nextIndex);
-    const word = store.words[nextIndex];
+    const session = ++playSession;
+    store.setPlayState(true, false, index);
+    await loadTranslation(index);
+    if (isStale(session, index)) return;
+
+    const word = store.words[index];
     if (!word) return;
 
     try {
       for (let i = 0; i < store.repeatCount; i++) {
-        if (!store.isPlaying || store.isPaused) break;
+        if (isStale(session, index)) return;
         await speakWord(word.text);
+        if (isStale(session, index)) return;
         if (i < store.repeatCount - 1) {
           await new Promise(resolve => setTimeout(resolve, REPEAT_DELAY_MS));
+          if (isStale(session, index)) return;
         }
       }
-      if (store.isPlaying && !store.isPaused) {
+      if (index < store.words.length - 1) {
         await new Promise(resolve => setTimeout(resolve, WORD_INTERVAL_MS));
-        await playNext();
+        if (isStale(session, index)) return;
+        await playFrom(index + 1);
+      } else {
+        stop();
       }
     } catch (error) {
       console.error('播放失败:', error);
@@ -82,9 +108,8 @@ export function useSpeechPlayer() {
 
   function play() {
     if (store.words.length === 0) return;
-    const startIndex = store.currentIndex === -1 ? 0 : store.currentIndex;
-    store.setPlayState(true, false, startIndex);
-    playNext();
+    const startIndex = store.currentIndex < 0 ? 0 : store.currentIndex;
+    playFrom(startIndex);
   }
 
   function pause() {
@@ -93,11 +118,13 @@ export function useSpeechPlayer() {
   }
 
   function resume() {
-    store.setPlayState(true, false, store.currentIndex);
-    playNext();
+    if (store.words.length === 0) return;
+    const target = store.currentIndex < 0 ? 0 : store.currentIndex;
+    playFrom(target);
   }
 
   function stop() {
+    playSession++;
     store.resetPlayState();
     speechSynthesis.cancel();
   }
@@ -105,26 +132,31 @@ export function useSpeechPlayer() {
   function prev() {
     if (!canPrev.value) return;
     const wasPlaying = store.isPlaying && !store.isPaused;
+    const target = store.currentIndex - 1;
     speechSynthesis.cancel();
-    store.setPlayState(store.isPlaying, store.isPaused, store.currentIndex - 1);
-    if (wasPlaying) playNext();
+    if (wasPlaying) {
+      playFrom(target);
+    } else {
+      store.setPlayState(store.isPlaying, store.isPaused, target);
+    }
   }
 
   function next() {
     if (!canNext.value) return;
     const wasPlaying = store.isPlaying && !store.isPaused;
+    const target = store.currentIndex + 1;
     speechSynthesis.cancel();
     if (wasPlaying) {
-      playNext();
+      playFrom(target);
     } else {
-      store.setPlayState(false, false, store.currentIndex + 1);
+      store.setPlayState(store.isPlaying, store.isPaused, target);
     }
   }
 
   onUnmounted(() => {
+    playSession++;
     speechSynthesis.cancel();
   });
 
   return { currentWord, progress, canPrev, canNext, play, pause, resume, stop, prev, next };
 }
-

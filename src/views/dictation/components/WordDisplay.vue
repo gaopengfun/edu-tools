@@ -16,15 +16,22 @@ defineProps<{
         style="background: radial-gradient(closest-side, rgba(125, 211, 252, 0.35), transparent);" />
     </div>
 
-    <!-- Pulsing rings (only when playing) -->
+    <!-- Water ripple rings (only when playing) -->
     <template v-if="isPlaying">
       <div
         class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-               w-60 h-60 rounded-full bg-sky-300/25 animate-pulse-ring pointer-events-none" />
+               w-64 h-64 rounded-full border-2 border-sky-400/60
+               animate-pulse-ring pointer-events-none" />
       <div
         class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-               w-60 h-60 rounded-full bg-sky-300/25 animate-pulse-ring pointer-events-none"
-        style="animation-delay: -2s" />
+               w-64 h-64 rounded-full border-2 border-sky-400/55
+               animate-pulse-ring pointer-events-none"
+        style="animation-delay: -1.2s" />
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+               w-64 h-64 rounded-full border-2 border-sky-400/55
+               animate-pulse-ring pointer-events-none"
+        style="animation-delay: -2.4s" />
     </template>
 
     <!-- Word -->

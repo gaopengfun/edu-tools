@@ -40,4 +40,6 @@ __screenshots__/
 
 # coding
 .playwright-mcp
+.superpowers
 .env.local
+.worktrees/

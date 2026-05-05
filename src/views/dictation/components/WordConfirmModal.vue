@@ -51,29 +51,38 @@ const emit = defineEmits<{
 
           <!-- Word list -->
           <div class="flex-1 overflow-y-auto px-6 pb-4">
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2.5">
               <div v-for="(word, i) in props.words" :key="word.index"
-                class="flex items-center gap-3 p-3.5 rounded-2xl
-                       bg-sky-50/70 hover:bg-sky-100/80 border border-white/60
-                       transition-colors">
-                <span class="flex items-center justify-center w-6 h-6 rounded-full
-                             bg-white text-sky-600 text-xs font-medium tabular-nums shrink-0">
+                class="word-row group flex items-center gap-3 p-3.5 rounded-2xl
+                       bg-white border border-slate-200/70
+                       hover:border-sky-300/70 hover:shadow-md hover:shadow-sky-200/40
+                       hover:-translate-y-0.5
+                       focus-within:border-sky-300/80 focus-within:shadow-sm focus-within:shadow-sky-200/40
+                       transition-all duration-200 ease-out">
+                <span class="flex items-center justify-center w-7 h-7 rounded-full
+                             bg-sky-50 ring-1 ring-sky-200/70
+                             text-sky-600 text-xs font-semibold tabular-nums shrink-0
+                             group-hover:bg-sky-100 group-hover:ring-sky-300/80
+                             transition-colors">
                   {{ i + 1 }}
                 </span>
                 <div class="flex-1 min-w-0">
-                  <div class="text-sm md:text-[15px] font-semibold text-slate-700">{{ word.text }}</div>
+                  <div class="text-sm md:text-[15px] font-semibold text-slate-700 leading-tight">{{ word.text }}</div>
                   <input
                     :value="word.translation"
                     @change="emit('updateTranslation', word.index, ($event.target as HTMLInputElement).value)"
                     class="text-xs md:text-sm text-slate-500 bg-transparent border-b border-dashed
-                           border-transparent focus:border-sky-400 outline-none w-full py-0.5
+                           border-transparent focus:border-sky-400 outline-none w-full py-0.5 mt-0.5
                            placeholder:text-slate-400"
                     placeholder="点击编辑翻译"
                   />
                 </div>
                 <button @click="emit('remove', word.index)"
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-rose-500
-                         opacity-60 hover:opacity-100 hover:bg-rose-50 transition-all shrink-0">
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-rose-400/70
+                         hover:text-rose-500 hover:bg-rose-50 active:scale-90
+                         focus:outline-none focus:ring-2 focus:ring-rose-300/50
+                         transition-all shrink-0"
+                  aria-label="移除该单词">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                   </svg>
