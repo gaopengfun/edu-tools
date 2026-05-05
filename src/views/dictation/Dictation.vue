@@ -69,7 +69,8 @@ function handleConfirm() {
         <p class="text-sm text-slate-500 mt-1">输入单词列表，自动播报朗读</p>
       </header>
 
-      <div class="bg-surface-container border border-outline-variant rounded-2xl p-4 md:p-6">
+      <div class="bg-white/80 backdrop-blur-sm shadow-lg shadow-sky-200/40
+                  rounded-3xl p-5 md:p-7">
         <WordInput v-model="wordInput" :disabled="isLoading" />
 
         <PlaybackSettings v-model:repeat-count="repeatCount" v-model:speech-rate="speechRate"
@@ -77,10 +78,12 @@ function handleConfirm() {
 
         <button @click="handleLoadWords"
           :disabled="!wordInput.trim() || isLoading"
-          class="w-full mt-6 py-3.5 rounded-xl text-[15px] font-medium
-                 bg-primary text-on-primary shadow-sm shadow-primary/30
-                 hover:shadow-md active:scale-[0.98]
-                 disabled:opacity-38 disabled:cursor-not-allowed disabled:shadow-none
+          class="w-full mt-6 h-14 rounded-2xl text-[15px] font-medium
+                 bg-gradient-to-br from-sky-400 to-emerald-400
+                 shadow-lg shadow-sky-400/40 text-white
+                 hover:scale-[1.01] active:scale-[0.98]
+                 disabled:opacity-50 disabled:saturate-50
+                 disabled:cursor-not-allowed disabled:hover:scale-100
                  transition-all duration-200">
           {{ isLoading ? '加载中...' : '加载单词' }}
         </button>
