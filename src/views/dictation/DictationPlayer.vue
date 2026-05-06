@@ -1,6 +1,6 @@
 <!-- src/views/dictation/DictationPlayer.vue -->
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDictationStore } from '@/stores/dictation';
 import { useSpeechPlayer } from './composables/useSpeechPlayer';
@@ -27,6 +27,11 @@ const showStartHint = computed(
   () => speechSupported && !store.isPlaying && store.currentIndex < 0 && store.words.length > 0
 );
 
+// 异常提示只用作首次告知，3 秒后自动消失，避免长期占据顶部视觉空间
+const BANNER_AUTO_HIDE_MS = 3000;
+const showUnsupportedBanner = ref(false);
+const showNoEnglishBanner = ref(false);
+
 function goBack() {
   stop();
   router.push('/dictation');
@@ -34,7 +39,19 @@ function goBack() {
 
 onMounted(() => {
   if (store.words.length === 0) router.push('/dictation');
+  if (!speechSupported) {
+    showUnsupportedBanner.value = true;
+    setTimeout(() => { showUnsupportedBanner.value = false; }, BANNER_AUTO_HIDE_MS);
+  }
 });
+
+// hasEnglishVoice 在 voices 加载后才会变成 false，watch 捕获此次跃迁后再起计时
+watch(hasEnglishVoice, (hasEn) => {
+  if (!hasEn && speechSupported) {
+    showNoEnglishBanner.value = true;
+    setTimeout(() => { showNoEnglishBanner.value = false; }, BANNER_AUTO_HIDE_MS);
+  }
+}, { immediate: true });
 </script>
 
 <template>
@@ -61,25 +78,37 @@ onMounted(() => {
       </div>
 
       <!-- 当前浏览器不支持 Web Speech API（如部分国产手机浏览器） -->
-      <div v-if="!speechSupported"
-        class="mx-4 md:mx-6 mb-2 px-4 py-2.5 rounded-2xl
-               bg-rose-50/90 backdrop-blur-sm
-               text-[13px] leading-snug text-rose-800
-               ring-1 ring-rose-200/70 shadow-sm">
-        当前浏览器不支持语音合成，无法播报单词。请改用
-        <span class="font-medium">Chrome 或 Edge</span> 打开本页面。
-      </div>
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0 -translate-y-1"
+        leave-active-class="transition duration-300 ease-in"
+        leave-to-class="opacity-0 -translate-y-1">
+        <div v-if="showUnsupportedBanner"
+          class="mx-4 md:mx-6 mb-2 px-4 py-2.5 rounded-2xl
+                 bg-rose-50/90 backdrop-blur-sm
+                 text-[13px] leading-snug text-rose-800
+                 ring-1 ring-rose-200/70 shadow-sm">
+          当前浏览器不支持语音合成，无法播报单词。请改用
+          <span class="font-medium">Chrome 或 Edge</span> 打开本页面。
+        </div>
+      </Transition>
 
       <!-- 系统未安装英文语音时的提示：中文 SAPI 对英文文本会静默 -->
-      <div v-else-if="!hasEnglishVoice"
-        class="mx-4 md:mx-6 mb-2 px-4 py-2.5 rounded-2xl
-               bg-amber-50/90 backdrop-blur-sm
-               text-[13px] leading-snug text-amber-800
-               ring-1 ring-amber-200/70 shadow-sm">
-        当前系统未安装英文语音，可能听不到声音。请在
-        <span class="font-medium">Windows 设置 → 时间和语言 → 语言和区域 → 添加语言（英语）</span>
-        中安装英文语音包后重试。
-      </div>
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0 -translate-y-1"
+        leave-active-class="transition duration-300 ease-in"
+        leave-to-class="opacity-0 -translate-y-1">
+        <div v-if="showNoEnglishBanner"
+          class="mx-4 md:mx-6 mb-2 px-4 py-2.5 rounded-2xl
+                 bg-amber-50/90 backdrop-blur-sm
+                 text-[13px] leading-snug text-amber-800
+                 ring-1 ring-amber-200/70 shadow-sm">
+          当前系统未安装英文语音，可能听不到声音。请在
+          <span class="font-medium">Windows 设置 → 时间和语言 → 语言和区域 → 添加语言（英语）</span>
+          中安装英文语音包后重试。
+        </div>
+      </Transition>
 
       <!-- Word display -->
       <div class="relative flex-1 flex flex-col">
