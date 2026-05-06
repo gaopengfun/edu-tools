@@ -12,25 +12,33 @@ export function useSpeechPlayer() {
   // 单调递增的会话号；任一新的 playFrom 调用都会让先前的循环作废
   let playSession = 0;
 
+  // 部分浏览器（如小米手机浏览器）不暴露 speechSynthesis 全局，裸引用会抛
+  // ReferenceError。此处一次性绑定 synth，后续全部走 synth?.xxx，避免裸名访问。
+  const synth: SpeechSynthesis | null =
+    typeof window !== 'undefined' && 'speechSynthesis' in window
+      ? window.speechSynthesis
+      : null;
+  const speechSupported = synth !== null;
+
   // 语音列表在浏览器中是异步加载的，第一次 getVoices() 可能为空；通过
   // voiceschanged 事件保持 voices 反应式。
-  const initialVoices = 'speechSynthesis' in window ? speechSynthesis.getVoices() : [];
+  const initialVoices = synth?.getVoices() ?? [];
   const voices = ref<SpeechSynthesisVoice[]>(initialVoices);
   // voicesLoaded 用作「能否信任 hasEnglishVoice」的闸门：Chrome 首屏同步
   // getVoices() 常返回 []，若直接据此渲染未装英文语音的提示，会闪一下。
   const voicesLoaded = ref(initialVoices.length > 0);
   const handleVoicesChanged = () => {
-    voices.value = speechSynthesis.getVoices();
+    voices.value = synth?.getVoices() ?? [];
     voicesLoaded.value = true;
   };
-  if ('speechSynthesis' in window) {
-    speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
-  }
+  synth?.addEventListener('voiceschanged', handleVoicesChanged);
 
   // 是否存在英文语音（en-US / en-GB / en-* 任一）。无英文语音时，Windows 中
   // 文 SAPI 对英文文本会静默——这是「单词播报没有声音」的最常见根因。
-  // 仅在 voicesLoaded 之后才视为可信，未加载前一律按「有」处理避免误报。
+  // 不支持 / 未加载语音时一律按「有」处理避免误报；不支持的情况由
+  // speechSupported 单独驱动 UI。
   const hasEnglishVoice = computed(() =>
+    !speechSupported ||
     !voicesLoaded.value ||
     voices.value.some(v => v.lang.toLowerCase().startsWith('en'))
   );
@@ -65,7 +73,7 @@ export function useSpeechPlayer() {
 
   function speakWord(word: string) {
     return new Promise<void>((resolve, reject) => {
-      if (!('speechSynthesis' in window)) {
+      if (!synth) {
         reject(new Error('浏览器不支持语音合成'));
         return;
       }
@@ -83,7 +91,7 @@ export function useSpeechPlayer() {
           reject(e);
         }
       };
-      speechSynthesis.speak(utterance);
+      synth.speak(utterance);
     });
   }
 
@@ -146,18 +154,18 @@ export function useSpeechPlayer() {
   }
 
   function play() {
-    if (store.words.length === 0) return;
+    if (store.words.length === 0 || !speechSupported) return;
     const startIndex = store.currentIndex < 0 ? 0 : store.currentIndex;
     playFrom(startIndex);
   }
 
   function pause() {
     store.setPlayState(true, true, store.currentIndex);
-    speechSynthesis.cancel();
+    synth?.cancel();
   }
 
   function resume() {
-    if (store.words.length === 0) return;
+    if (store.words.length === 0 || !speechSupported) return;
     const target = store.currentIndex < 0 ? 0 : store.currentIndex;
     playFrom(target);
   }
@@ -165,14 +173,14 @@ export function useSpeechPlayer() {
   function stop() {
     playSession++;
     store.resetPlayState();
-    speechSynthesis.cancel();
+    synth?.cancel();
   }
 
   function prev() {
     if (!canPrev.value) return;
     const wasPlaying = store.isPlaying && !store.isPaused;
     const target = store.currentIndex - 1;
-    speechSynthesis.cancel();
+    synth?.cancel();
     if (wasPlaying) {
       playFrom(target);
     } else {
@@ -184,7 +192,7 @@ export function useSpeechPlayer() {
     if (!canNext.value) return;
     const wasPlaying = store.isPlaying && !store.isPaused;
     const target = store.currentIndex + 1;
-    speechSynthesis.cancel();
+    synth?.cancel();
     if (wasPlaying) {
       playFrom(target);
     } else {
@@ -194,11 +202,9 @@ export function useSpeechPlayer() {
 
   onUnmounted(() => {
     playSession++;
-    if ('speechSynthesis' in window) {
-      speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
-      speechSynthesis.cancel();
-    }
+    synth?.removeEventListener('voiceschanged', handleVoicesChanged);
+    synth?.cancel();
   });
 
-  return { currentWord, progress, canPrev, canNext, hasEnglishVoice, play, pause, resume, stop, prev, next };
+  return { currentWord, progress, canPrev, canNext, speechSupported, hasEnglishVoice, play, pause, resume, stop, prev, next };
 }

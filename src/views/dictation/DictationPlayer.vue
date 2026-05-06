@@ -12,7 +12,7 @@ import ProgressBadge from './components/ProgressBadge.vue';
 
 const router = useRouter();
 const store = useDictationStore();
-const { currentWord, progress, canPrev, canNext, hasEnglishVoice, play, pause, resume, prev, next, stop } = useSpeechPlayer();
+const { currentWord, progress, canPrev, canNext, speechSupported, hasEnglishVoice, play, pause, resume, prev, next, stop } = useSpeechPlayer();
 
 const isActivelyPlaying = computed(() => store.isPlaying && !store.isPaused);
 const displayIndex = computed(() =>
@@ -24,7 +24,7 @@ const previewWord = computed(() =>
 );
 
 const showStartHint = computed(
-  () => !store.isPlaying && store.currentIndex < 0 && store.words.length > 0
+  () => speechSupported && !store.isPlaying && store.currentIndex < 0 && store.words.length > 0
 );
 
 function goBack() {
@@ -60,8 +60,18 @@ onMounted(() => {
         <ProgressBadge :current="displayIndex" :total="store.words.length" />
       </div>
 
+      <!-- 当前浏览器不支持 Web Speech API（如部分国产手机浏览器） -->
+      <div v-if="!speechSupported"
+        class="mx-4 md:mx-6 mb-2 px-4 py-2.5 rounded-2xl
+               bg-rose-50/90 backdrop-blur-sm
+               text-[13px] leading-snug text-rose-800
+               ring-1 ring-rose-200/70 shadow-sm">
+        当前浏览器不支持语音合成，无法播报单词。请改用
+        <span class="font-medium">Chrome 或 Edge</span> 打开本页面。
+      </div>
+
       <!-- 系统未安装英文语音时的提示：中文 SAPI 对英文文本会静默 -->
-      <div v-if="!hasEnglishVoice"
+      <div v-else-if="!hasEnglishVoice"
         class="mx-4 md:mx-6 mb-2 px-4 py-2.5 rounded-2xl
                bg-amber-50/90 backdrop-blur-sm
                text-[13px] leading-snug text-amber-800
