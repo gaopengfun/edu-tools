@@ -12,7 +12,7 @@ import ProgressBadge from './components/ProgressBadge.vue';
 
 const router = useRouter();
 const store = useDictationStore();
-const { currentWord, progress, canPrev, canNext, play, pause, resume, prev, next, stop } = useSpeechPlayer();
+const { currentWord, progress, canPrev, canNext, hasEnglishVoice, play, pause, resume, prev, next, stop } = useSpeechPlayer();
 
 const isActivelyPlaying = computed(() => store.isPlaying && !store.isPaused);
 const displayIndex = computed(() =>
@@ -58,6 +58,17 @@ onMounted(() => {
         </button>
 
         <ProgressBadge :current="displayIndex" :total="store.words.length" />
+      </div>
+
+      <!-- 系统未安装英文语音时的提示：中文 SAPI 对英文文本会静默 -->
+      <div v-if="!hasEnglishVoice"
+        class="mx-4 md:mx-6 mb-2 px-4 py-2.5 rounded-2xl
+               bg-amber-50/90 backdrop-blur-sm
+               text-[13px] leading-snug text-amber-800
+               ring-1 ring-amber-200/70 shadow-sm">
+        当前系统未安装英文语音，可能听不到声音。请在
+        <span class="font-medium">Windows 设置 → 时间和语言 → 语言和区域 → 添加语言（英语）</span>
+        中安装英文语音包后重试。
       </div>
 
       <!-- Word display -->

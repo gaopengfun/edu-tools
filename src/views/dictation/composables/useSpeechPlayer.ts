@@ -1,5 +1,5 @@
 // src/views/dictation/composables/useSpeechPlayer.ts
-import { computed, onUnmounted } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 import { useDictationStore } from '@/stores/dictation';
 import { translateWord } from '@/utils/translate';
 
@@ -11,6 +11,42 @@ export function useSpeechPlayer() {
 
   // 单调递增的会话号；任一新的 playFrom 调用都会让先前的循环作废
   let playSession = 0;
+
+  // 语音列表在浏览器中是异步加载的，第一次 getVoices() 可能为空；通过
+  // voiceschanged 事件保持 voices 反应式。
+  const initialVoices = 'speechSynthesis' in window ? speechSynthesis.getVoices() : [];
+  const voices = ref<SpeechSynthesisVoice[]>(initialVoices);
+  // voicesLoaded 用作「能否信任 hasEnglishVoice」的闸门：Chrome 首屏同步
+  // getVoices() 常返回 []，若直接据此渲染未装英文语音的提示，会闪一下。
+  const voicesLoaded = ref(initialVoices.length > 0);
+  const handleVoicesChanged = () => {
+    voices.value = speechSynthesis.getVoices();
+    voicesLoaded.value = true;
+  };
+  if ('speechSynthesis' in window) {
+    speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
+  }
+
+  // 是否存在英文语音（en-US / en-GB / en-* 任一）。无英文语音时，Windows 中
+  // 文 SAPI 对英文文本会静默——这是「单词播报没有声音」的最常见根因。
+  // 仅在 voicesLoaded 之后才视为可信，未加载前一律按「有」处理避免误报。
+  const hasEnglishVoice = computed(() =>
+    !voicesLoaded.value ||
+    voices.value.some(v => v.lang.toLowerCase().startsWith('en'))
+  );
+
+  // 选一个最合适的语音：优先 en-US，其次任何 en-*，再退化到默认/任意可用。
+  // 显式赋值 utterance.voice 可避免某些浏览器在 lang 不匹配时静默失败。
+  function pickVoice(): SpeechSynthesisVoice | null {
+    const list = voices.value;
+    return (
+      list.find(v => v.lang === 'en-US') ||
+      list.find(v => v.lang.toLowerCase().startsWith('en')) ||
+      list.find(v => v.default) ||
+      list[0] ||
+      null
+    );
+  }
 
   const currentWord = computed(() => {
     if (store.currentIndex >= 0 && store.currentIndex < store.words.length) {
@@ -36,6 +72,8 @@ export function useSpeechPlayer() {
       const utterance = new SpeechSynthesisUtterance(word);
       utterance.lang = 'en-US';
       utterance.rate = store.speechRate;
+      const v = pickVoice();
+      if (v) utterance.voice = v;
       utterance.onend = () => resolve();
       utterance.onerror = (e) => {
         // 用户主动中断（pause / prev / next / stop）走这里，不应视为播放失败
@@ -77,8 +115,9 @@ export function useSpeechPlayer() {
     }
     const session = ++playSession;
     store.setPlayState(true, false, index);
-    await loadTranslation(index);
-    if (isStale(session, index)) return;
+    // 翻译只用于视觉展示，不阻塞发声；await 会丢失用户手势激活态，并在
+    // 后端慢/不可达时把第一次 speak 推迟最长 10s（请求超时）。
+    void loadTranslation(index);
 
     const word = store.words[index];
     if (!word) return;
@@ -155,8 +194,11 @@ export function useSpeechPlayer() {
 
   onUnmounted(() => {
     playSession++;
-    speechSynthesis.cancel();
+    if ('speechSynthesis' in window) {
+      speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+      speechSynthesis.cancel();
+    }
   });
 
-  return { currentWord, progress, canPrev, canNext, play, pause, resume, stop, prev, next };
+  return { currentWord, progress, canPrev, canNext, hasEnglishVoice, play, pause, resume, stop, prev, next };
 }
