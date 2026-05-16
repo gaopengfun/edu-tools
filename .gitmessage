@@ -1,0 +1,33 @@
+# <type>(<scope>): <中文描述>     # 不超过 50 字、动词起头、句末不加句号
+#
+# <空一行>
+# <中文正文：解释「为什么」与上下文，可分多段，每行 ≤72 字>
+#
+# <空一行>
+# <footer：BREAKING CHANGE、Closes #123 等，可选>
+#
+# ── Conventional Commits（中文主题 / 正文） ──────────────────────────
+# type 必填，使用英文小写，可选值：
+#   feat      新功能
+#   fix       Bug 修复
+#   docs      仅文档变更
+#   style     不影响语义的格式调整（空格、分号等）
+#   refactor  既不是新功能也不是修复的代码重构
+#   perf      性能优化
+#   test      新增或修正测试
+#   build     构建系统或外部依赖（vite、pnpm、tsconfig 等）
+#   ci        CI 配置变更
+#   chore     杂项（不影响 src 与测试）
+#   revert    回滚某次提交
+#
+# scope 可选，使用英文小写，建议对应模块/目录：
+#   router, dictation, tool-list, ui, deps, types, styles ...
+#
+# 示例：
+#   feat(dictation): 新增完成状态管理与返回按钮
+#   fix(router): 修复刷新后路由守卫误跳转
+#   refactor(tool-list): 首页换浅色磨砂卡基线
+#   chore(deps): 升级 vite 至 8.x
+#
+# 启用本模板（仅需执行一次）：
+#   git config commit.template .gitmessage
