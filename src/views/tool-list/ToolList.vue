@@ -8,6 +8,18 @@ import { tools } from './tools';
   <div class="min-h-dvh relative overflow-hidden">
     <AppShellBackground />
 
+    <div
+      class="absolute inset-0 flex items-center justify-center pointer-events-none"
+      aria-hidden="true"
+    >
+      <img
+        src="@/assets/logo.svg"
+        alt="logo"
+        draggable="false"
+        class="logo-watermark h-auto w-[min(72vw,calc(68vh*1365/1024),720px)] select-none"
+      />
+    </div>
+
     <div class="relative z-10 max-w-3xl mx-auto px-4 py-8 md:py-10">
       <header class="mb-8">
         <h1 class="text-2xl md:text-[28px] font-semibold text-slate-700 leading-tight">

@@ -76,6 +76,27 @@
   }
 }
 
+@keyframes logo-watermark-breathe {
+  0%,
+  100% {
+    opacity: 0.05;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.09;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes logo-watermark-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.05;
+  }
+}
+
 .animate-float-slow {
   animation: float-slow 18s ease-in-out infinite;
 }
@@ -88,6 +109,12 @@
   animation: hint-bob 2.4s ease-in-out infinite;
 }
 
+.logo-watermark {
+  animation:
+    logo-watermark-fade-in 800ms ease-out both,
+    logo-watermark-breathe 9s ease-in-out 800ms infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-float-slow {
     animation: none;
@@ -98,5 +125,9 @@
   }
   .animate-hint-bob {
     animation: none;
+  }
+  .logo-watermark {
+    animation: none;
+    opacity: 0.07;
   }
 }
