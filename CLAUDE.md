@@ -11,7 +11,7 @@
 - `pnpm type-check` — `vue-tsc --build`（支持项目引用，仅类型检查）。
 - `pnpm build-only` — `vite build` 不进行类型检查。
 - `pnpm preview` — 预览生产构建。
-- `pnpm lint` — 先运行 **oxlint** 再运行 **eslint**（均带 `--fix`）。Lint 栈是两遍设置，不要跳过 oxlint。
+- `pnpm lint` — 运行 **oxlint --fix**。
 - `pnpm format` — `oxfmt src/`。
 
 本仓库未配置测试运行器。
@@ -22,7 +22,7 @@
 
 ## 约定
 
-- TypeScript 严格模式；Vue SFC 使用 `<script setup lang="ts">`。应用 `eslint-plugin-vue` 的 Vue 特定 ESLint 规则。
+- TypeScript 严格模式；Vue SFC 使用 `<script setup lang="ts">`。通过 oxlint 的 `vue` 插件应用 Vue 特定 lint 规则。
 - 提交消息遵循 Conventional Commits，**中文主题/正文**（参见用户的全局 `CLAUDE.md`）。
 
 ## UI 设计语言
