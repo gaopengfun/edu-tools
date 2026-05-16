@@ -27,9 +27,16 @@ async function handleLoadWords() {
   if (!text) return;
   isLoading.value = true;
   try {
-    const wordList = text.split(/[\n,，、\s]+/).map(w => w.trim()).filter(w => w.length > 0);
+    const wordList = text
+      .split(/[\n,，、\s]+/)
+      .map((w) => w.trim())
+      .filter((w) => w.length > 0);
     const translations = await batchTranslate(wordList);
-    previewWords.value = wordList.map((text, index) => ({ text, translation: translations[index] || '', index }));
+    previewWords.value = wordList.map((text, index) => ({
+      text,
+      translation: translations[index] || '',
+      index
+    }));
     showModal.value = true;
   } catch (error) {
     console.error('加载单词失败:', error);
@@ -39,12 +46,14 @@ async function handleLoadWords() {
 }
 
 function handleRemoveWord(index: number) {
-  previewWords.value = previewWords.value.filter(w => w.index !== index);
-  previewWords.value.forEach((w, i) => { w.index = i; });
+  previewWords.value = previewWords.value.filter((w) => w.index !== index);
+  previewWords.value.forEach((w, i) => {
+    w.index = i;
+  });
 }
 
 function handleUpdateTranslation(index: number, translation: string) {
-  const word = previewWords.value.find(w => w.index === index);
+  const word = previewWords.value.find((w) => w.index === index);
   if (word) word.translation = translation;
 }
 
@@ -61,50 +70,54 @@ function goBack() {
 </script>
 
 <template>
-  <div class="min-h-dvh relative overflow-hidden bg-gradient-to-b from-sky-100 via-sky-50 to-emerald-100">
+  <div
+    class="min-h-dvh relative overflow-hidden bg-gradient-to-b from-sky-100 via-sky-50 to-emerald-100"
+  >
     <DecorativeBackground />
 
     <div class="relative z-10 max-w-2xl mx-auto px-4 py-8 md:py-10">
-      <button @click="goBack" aria-label="返回工具列表"
-        class="mb-5 w-11 h-11 rounded-full flex items-center justify-center
-               bg-white/80 backdrop-blur-sm shadow-md shadow-sky-200/40
-               text-slate-600 transition-all
-               hover:bg-white active:scale-95">
+      <button
+        @click="goBack"
+        aria-label="返回工具列表"
+        class="mb-5 w-11 h-11 rounded-full flex items-center justify-center bg-white/80 backdrop-blur-sm shadow-md shadow-sky-200/40 text-slate-600 transition-all hover:bg-white active:scale-95"
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
         </svg>
       </button>
 
       <header class="mb-8">
-        <h1 class="text-2xl md:text-[28px] font-semibold text-slate-700 leading-tight">
-          单词听写
-        </h1>
+        <h1 class="text-2xl md:text-[28px] font-semibold text-slate-700 leading-tight">单词听写</h1>
         <p class="text-sm text-slate-500 mt-1">输入单词列表，自动播报朗读</p>
       </header>
 
-      <div class="bg-white/80 backdrop-blur-sm shadow-lg shadow-sky-200/40
-                  rounded-3xl p-5 md:p-7">
+      <div class="bg-white/80 backdrop-blur-sm shadow-lg shadow-sky-200/40 rounded-3xl p-5 md:p-7">
         <WordInput v-model="wordInput" :disabled="isLoading" />
 
-        <PlaybackSettings v-model:repeat-count="repeatCount" v-model:speech-rate="speechRate"
-          :disabled="isLoading" class="mt-5" />
+        <PlaybackSettings
+          v-model:repeat-count="repeatCount"
+          v-model:speech-rate="speechRate"
+          :disabled="isLoading"
+          class="mt-5"
+        />
 
-        <button @click="handleLoadWords"
+        <button
+          @click="handleLoadWords"
           :disabled="!wordInput.trim() || isLoading"
-          class="w-full mt-6 h-14 rounded-2xl text-[15px] font-medium
-                 bg-gradient-to-br from-sky-400 to-emerald-400
-                 shadow-lg shadow-sky-400/40 text-white
-                 hover:scale-[1.01] active:scale-[0.98]
-                 disabled:opacity-50 disabled:saturate-50
-                 disabled:cursor-not-allowed disabled:hover:scale-100
-                 transition-all duration-200">
+          class="w-full mt-6 h-14 rounded-2xl text-[15px] font-medium bg-gradient-to-br from-sky-400 to-emerald-400 shadow-lg shadow-sky-400/40 text-white hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 disabled:saturate-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
+        >
           {{ isLoading ? '加载中...' : '加载单词' }}
         </button>
       </div>
 
-      <WordConfirmModal :words="previewWords" :show="showModal"
-        @confirm="handleConfirm" @cancel="showModal = false"
-        @remove="handleRemoveWord" @update-translation="handleUpdateTranslation" />
+      <WordConfirmModal
+        :words="previewWords"
+        :show="showModal"
+        @confirm="handleConfirm"
+        @cancel="showModal = false"
+        @remove="handleRemoveWord"
+        @update-translation="handleUpdateTranslation"
+      />
     </div>
   </div>
 </template>

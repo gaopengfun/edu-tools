@@ -22,16 +22,13 @@ export function useSpeechPlayer() {
 
   // 主路径：HTML5 audio + 有道发音 mp3。几乎所有浏览器都可用，且发音质量
   // 比本地 TTS 稳定（不依赖系统语音包）。
-  const audio: HTMLAudioElement | null =
-    typeof Audio !== 'undefined' ? new Audio() : null;
+  const audio: HTMLAudioElement | null = typeof Audio !== 'undefined' ? new Audio() : null;
   audio?.setAttribute('preload', 'auto');
 
   // 降级路径：Web Speech API。部分浏览器（如小米手机浏览器）不暴露
   // speechSynthesis 全局，裸引用会抛 ReferenceError；统一走 synth?.xxx。
   const synth: SpeechSynthesis | null =
-    typeof window !== 'undefined' && 'speechSynthesis' in window
-      ? window.speechSynthesis
-      : null;
+    typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis : null;
 
   // 只要 audio 或 synth 任一可用，就认为可发声
   const speechSupported = audio !== null || synth !== null;
@@ -49,19 +46,20 @@ export function useSpeechPlayer() {
 
   // 主路径走有道音频时，本地是否有英文语音不影响发声；只有当 audio 不可用
   // 且必须降级到本地 TTS 时才相关。这里仍保留以兼容上游 UI 提示。
-  const hasEnglishVoice = computed(() =>
-    audio !== null ||
-    !synth ||
-    !voicesLoaded.value ||
-    voices.value.some(v => v.lang.toLowerCase().startsWith('en'))
+  const hasEnglishVoice = computed(
+    () =>
+      audio !== null ||
+      !synth ||
+      !voicesLoaded.value ||
+      voices.value.some((v) => v.lang.toLowerCase().startsWith('en'))
   );
 
   function pickVoice(): SpeechSynthesisVoice | null {
     const list = voices.value;
     return (
-      list.find(v => v.lang === 'en-US') ||
-      list.find(v => v.lang.toLowerCase().startsWith('en')) ||
-      list.find(v => v.default) ||
+      list.find((v) => v.lang === 'en-US') ||
+      list.find((v) => v.lang.toLowerCase().startsWith('en')) ||
+      list.find((v) => v.default) ||
       list[0] ||
       null
     );
@@ -131,7 +129,7 @@ export function useSpeechPlayer() {
       audio.src = YOUDAO_VOICE_URL(word);
       // 调速保留音调（Chrome / Firefox 默认 true，部分浏览器忽略 — 可接受）
       audio.playbackRate = store.speechRate;
-      audio.play().catch(err => {
+      audio.play().catch((err) => {
         if (userCanceled) finish(resolve);
         else finish(() => reject(err));
       });
@@ -200,10 +198,7 @@ export function useSpeechPlayer() {
 
   function isStale(session: number, index: number) {
     return (
-      session !== playSession ||
-      !store.isPlaying ||
-      store.isPaused ||
-      store.currentIndex !== index
+      session !== playSession || !store.isPlaying || store.isPaused || store.currentIndex !== index
     );
   }
 
@@ -225,12 +220,12 @@ export function useSpeechPlayer() {
         await speakWord(word.text);
         if (isStale(session, index)) return;
         if (i < store.repeatCount - 1) {
-          await new Promise(resolve => setTimeout(resolve, REPEAT_DELAY_MS));
+          await new Promise((resolve) => setTimeout(resolve, REPEAT_DELAY_MS));
           if (isStale(session, index)) return;
         }
       }
       if (index < store.words.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, WORD_INTERVAL_MS));
+        await new Promise((resolve) => setTimeout(resolve, WORD_INTERVAL_MS));
         if (isStale(session, index)) return;
         await playFrom(index + 1);
       } else {
@@ -299,5 +294,18 @@ export function useSpeechPlayer() {
     cancelCurrentSpeech();
   });
 
-  return { currentWord, progress, canPrev, canNext, speechSupported, hasEnglishVoice, play, pause, resume, stop, prev, next };
+  return {
+    currentWord,
+    progress,
+    canPrev,
+    canNext,
+    speechSupported,
+    hasEnglishVoice,
+    play,
+    pause,
+    resume,
+    stop,
+    prev,
+    next
+  };
 }

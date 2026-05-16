@@ -25,10 +25,10 @@ async function callTranslateBatch(words: string[]): Promise<TranslateItem[]> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Token': token,
+      'X-Token': token
     },
     body: JSON.stringify({ words }),
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
   });
 
   if (!response.ok) {
@@ -50,10 +50,12 @@ export async function batchTranslate(words: string[]): Promise<string[]> {
     const chunk = words.slice(i, i + BATCH_LIMIT);
     try {
       const data = await callTranslateBatch(chunk);
-      results.push(...chunk.map((_, j) => {
-        const item = data[j];
-        return item && item.success ? item.translatedText : '';
-      }));
+      results.push(
+        ...chunk.map((_, j) => {
+          const item = data[j];
+          return item && item.success ? item.translatedText : '';
+        })
+      );
     } catch (error) {
       console.error('翻译请求失败:', error);
       results.push(...chunk.map(() => ''));

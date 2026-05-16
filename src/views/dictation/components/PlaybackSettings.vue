@@ -8,14 +8,17 @@ const props = defineProps<{ disabled?: boolean }>();
 <template>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-sky-50/60 rounded-2xl">
     <div>
-      <label for="repeat-count"
-        class="block text-xs font-medium text-slate-500 mb-2"
-      >重复次数</label>
+      <label for="repeat-count" class="block text-xs font-medium text-slate-500 mb-2"
+        >重复次数</label
+      >
       <div class="flex items-center gap-3">
         <input
           id="repeat-count"
           v-model.number="repeatCount"
-          type="range" min="1" max="5" step="1"
+          type="range"
+          min="1"
+          max="5"
+          step="1"
           class="sky-range flex-1"
           :disabled="props.disabled"
         />
@@ -25,14 +28,15 @@ const props = defineProps<{ disabled?: boolean }>();
       </div>
     </div>
     <div>
-      <label for="speech-rate"
-        class="block text-xs font-medium text-slate-500 mb-2"
-      >语速</label>
+      <label for="speech-rate" class="block text-xs font-medium text-slate-500 mb-2">语速</label>
       <div class="flex items-center gap-3">
         <input
           id="speech-rate"
           v-model.number="speechRate"
-          type="range" min="0.5" max="2" step="0.1"
+          type="range"
+          min="0.5"
+          max="2"
+          step="0.1"
           class="sky-range flex-1"
           :disabled="props.disabled"
         />
@@ -66,7 +70,9 @@ const props = defineProps<{ disabled?: boolean }>();
   border: 2px solid white;
   box-shadow: 0 1px 3px rgb(14 165 233 / 0.35);
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
 }
 
 .sky-range::-webkit-slider-thumb:hover {
