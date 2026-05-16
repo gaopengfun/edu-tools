@@ -1,6 +1,6 @@
 <!-- src/views/dictation/DictationPlayer.vue -->
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDictationStore } from '@/stores/dictation';
 import { useSpeechPlayer } from './composables/useSpeechPlayer';
@@ -43,10 +43,14 @@ const showStartHint = computed(
   () => speechSupported && !store.isPlaying && store.currentIndex < 0 && store.words.length > 0
 );
 
+const startHintLabel = computed(() => (store.isComplete ? '再来一次' : '点击开始播报'));
+
 // 异常提示只用作首次告知，3 秒后自动消失，避免长期占据顶部视觉空间
 const BANNER_AUTO_HIDE_MS = 3000;
 const showUnsupportedBanner = ref(false);
 const showNoEnglishBanner = ref(false);
+let unsupportedTimer: ReturnType<typeof setTimeout> | null = null;
+let noEnglishTimer: ReturnType<typeof setTimeout> | null = null;
 
 function goBack() {
   stop();
@@ -57,7 +61,7 @@ onMounted(() => {
   if (store.words.length === 0) router.push('/dictation');
   if (!speechSupported) {
     showUnsupportedBanner.value = true;
-    setTimeout(() => {
+    unsupportedTimer = setTimeout(() => {
       showUnsupportedBanner.value = false;
     }, BANNER_AUTO_HIDE_MS);
   }
@@ -69,13 +73,19 @@ watch(
   (hasEn) => {
     if (!hasEn && speechSupported) {
       showNoEnglishBanner.value = true;
-      setTimeout(() => {
+      if (noEnglishTimer) clearTimeout(noEnglishTimer);
+      noEnglishTimer = setTimeout(() => {
         showNoEnglishBanner.value = false;
       }, BANNER_AUTO_HIDE_MS);
     }
   },
   { immediate: true }
 );
+
+onUnmounted(() => {
+  if (unsupportedTimer) clearTimeout(unsupportedTimer);
+  if (noEnglishTimer) clearTimeout(noEnglishTimer);
+});
 </script>
 
 <template>
@@ -148,7 +158,7 @@ watch(
           v-if="showStartHint"
           type="button"
           @click="play"
-          aria-label="点击开始播报"
+          :aria-label="startHintLabel"
           class="group absolute inset-0 z-20 flex items-center justify-center cursor-pointer focus:outline-none"
         >
           <span
@@ -164,7 +174,7 @@ watch(
                 <path d="M8 5v14l11-7z" />
               </svg>
             </span>
-            点击开始播报
+            {{ startHintLabel }}
           </span>
         </button>
       </div>

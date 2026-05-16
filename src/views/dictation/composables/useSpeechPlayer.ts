@@ -16,9 +16,9 @@ export function useSpeechPlayer() {
 
   // 单调递增的会话号；任一新的 playFrom 调用都会让先前的循环作废
   let playSession = 0;
-  // 用户主动取消（pause / stop / prev / next）时置位，
-  // 让正在 pending 的 audio.play().catch / onerror 不上报为错误
-  let userCanceled = false;
+  // cancelCurrentSpeech 通过它同步落定当前正在 pending 的 audio promise，
+  // 避免下一次 speakWithAudio 复用同一个 audio 元素时被旧 src 的延迟 error 事件误伤
+  let activeAudioCancel: (() => void) | null = null;
 
   // 主路径：HTML5 audio + 有道发音 mp3。几乎所有浏览器都可用，且发音质量
   // 比本地 TTS 稳定（不依赖系统语音包）。
@@ -94,7 +94,8 @@ export function useSpeechPlayer() {
         reject(new Error('audio_unavailable'));
         return;
       }
-      userCanceled = false;
+      // 每次调用各自持有 canceled，闭包不会被下次调用覆盖
+      let canceled = false;
       let settled = false;
       let started = false;
 
@@ -103,6 +104,7 @@ export function useSpeechPlayer() {
         audio.onerror = null;
         audio.onplaying = null;
         clearTimeout(startTimer);
+        if (activeAudioCancel === cancel) activeAudioCancel = null;
       };
       const finish = (fn: () => void) => {
         if (settled) return;
@@ -113,8 +115,7 @@ export function useSpeechPlayer() {
 
       audio.onended = () => finish(resolve);
       audio.onerror = () => {
-        // 用户取消时浏览器也会触发 error/empty src，按正常完成处理
-        if (userCanceled) finish(resolve);
+        if (canceled) finish(resolve);
         else finish(() => reject(new Error('audio_error')));
       };
       audio.onplaying = () => {
@@ -126,11 +127,17 @@ export function useSpeechPlayer() {
         if (!started) finish(() => reject(new Error('audio_timeout')));
       }, AUDIO_START_TIMEOUT_MS);
 
+      const cancel = () => {
+        canceled = true;
+        finish(resolve);
+      };
+      activeAudioCancel = cancel;
+
       audio.src = YOUDAO_VOICE_URL(word);
       // 调速保留音调（Chrome / Firefox 默认 true，部分浏览器忽略 — 可接受）
       audio.playbackRate = store.speechRate;
       audio.play().catch((err) => {
-        if (userCanceled) finish(resolve);
+        if (canceled) finish(resolve);
         else finish(() => reject(err));
       });
     });
@@ -153,7 +160,7 @@ export function useSpeechPlayer() {
         if (e.error === 'canceled' || e.error === 'interrupted') {
           resolve();
         } else {
-          reject(e);
+          reject(new Error(e.error || 'speech_synthesis_error'));
         }
       };
       synth.speak(utterance);
@@ -164,20 +171,17 @@ export function useSpeechPlayer() {
     try {
       await speakWithAudio(word);
     } catch (err) {
-      // 用户主动取消时 userCanceled 已经把 audio 路径 resolve 掉了，
-      // 走到 catch 就意味着真实失败 — 降级
-      if (userCanceled) return;
       console.warn('[dictation] 有道发音失败，降级到本地 TTS', err);
       await speakWithSynth(word);
     }
   }
 
   function cancelCurrentSpeech() {
-    userCanceled = true;
+    // 先同步把 pending 的 audio promise 落定，避免后续 audio.pause / load
+    // 引发的 error 事件被下一次 speakWithAudio 误收
+    activeAudioCancel?.();
     if (audio) {
       audio.pause();
-      // 清掉 src 让浏览器释放资源；下次 speakWithAudio 会重置 onerror，
-      // 此处触发的 error 事件被 userCanceled 吞掉
       audio.removeAttribute('src');
       audio.load();
     }
@@ -248,6 +252,7 @@ export function useSpeechPlayer() {
   }
 
   function pause() {
+    if (!store.isPlaying) return;
     store.setPlayState(true, true, store.currentIndex);
     cancelCurrentSpeech();
   }
@@ -269,6 +274,8 @@ export function useSpeechPlayer() {
     const wasPlaying = store.isPlaying && !store.isPaused;
     const target = store.currentIndex - 1;
     cancelCurrentSpeech();
+    // 用户显式导航走出"全部完成"态，复位庆祝标记，避免徽章和进度卡在 100%
+    store.setComplete(false);
     if (wasPlaying) {
       playFrom(target);
     } else {
@@ -281,6 +288,7 @@ export function useSpeechPlayer() {
     const wasPlaying = store.isPlaying && !store.isPaused;
     const target = store.currentIndex + 1;
     cancelCurrentSpeech();
+    store.setComplete(false);
     if (wasPlaying) {
       playFrom(target);
     } else {

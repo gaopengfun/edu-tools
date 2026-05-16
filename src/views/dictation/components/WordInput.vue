@@ -1,15 +1,12 @@
 <!-- src/views/dictation/components/WordInput.vue -->
 <script setup lang="ts">
 import { computed } from 'vue';
+import { splitWords } from '@/utils/words';
 
 const model = defineModel<string>({ required: true });
 const props = defineProps<{ disabled?: boolean }>();
 
-const wordCount = computed(() => {
-  const text = model.value.trim();
-  if (!text) return 0;
-  return text.split(/[\n,，、\s]+/).filter((w) => w.length > 0).length;
-});
+const wordCount = computed(() => splitWords(model.value).length);
 </script>
 
 <template>

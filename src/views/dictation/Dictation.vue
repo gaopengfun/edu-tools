@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDictationStore, type WordItem } from '@/stores/dictation';
 import { batchTranslate } from '@/utils/translate';
+import { splitWords } from '@/utils/words';
 import WordInput from './components/WordInput.vue';
 import PlaybackSettings from './components/PlaybackSettings.vue';
 import WordConfirmModal from './components/WordConfirmModal.vue';
@@ -13,24 +14,19 @@ const router = useRouter();
 const store = useDictationStore();
 
 const wordInput = ref('');
-const repeatCount = ref(2);
-const speechRate = ref(0.8);
+// 用 store 中已持久化的值作为初始值，保留用户上次的偏好
+const repeatCount = ref(store.repeatCount);
+const speechRate = ref(store.speechRate);
 const isLoading = ref(false);
 const showModal = ref(false);
 const previewWords = ref<WordItem[]>([]);
-
-// mock data, 自测使用，暂时不要删除
-// wordInput.value = 'apple,banana,orange、clever、naughty、enjoy、want、need、everyone、go';
 
 async function handleLoadWords() {
   const text = wordInput.value.trim();
   if (!text) return;
   isLoading.value = true;
   try {
-    const wordList = text
-      .split(/[\n,，、\s]+/)
-      .map((w) => w.trim())
-      .filter((w) => w.length > 0);
+    const wordList = splitWords(text);
     const translations = await batchTranslate(wordList);
     previewWords.value = wordList.map((text, index) => ({
       text,

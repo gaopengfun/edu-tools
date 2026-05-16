@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { defineStore } from 'pinia';
 
 export interface WordItem {
@@ -7,10 +7,42 @@ export interface WordItem {
   index: number;
 }
 
+const CONFIG_STORAGE_KEY = 'dictation:config';
+
+interface StoredConfig {
+  repeatCount: number;
+  speechRate: number;
+}
+
+function loadStoredConfig(): StoredConfig | null {
+  if (typeof localStorage === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<StoredConfig>;
+    if (typeof parsed.repeatCount !== 'number' || typeof parsed.speechRate !== 'number') {
+      return null;
+    }
+    return { repeatCount: parsed.repeatCount, speechRate: parsed.speechRate };
+  } catch {
+    return null;
+  }
+}
+
 export const useDictationStore = defineStore('dictation', () => {
+  const stored = loadStoredConfig();
   const words = ref<WordItem[]>([]);
-  const repeatCount = ref(2);
-  const speechRate = ref(0.8);
+  const repeatCount = ref(stored?.repeatCount ?? 2);
+  const speechRate = ref(stored?.speechRate ?? 0.8);
+
+  watch([repeatCount, speechRate], ([r, rate]) => {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify({ repeatCount: r, speechRate: rate }));
+    } catch {
+      // localStorage 写入失败（隐私模式 / 配额）就静默放过，不影响主流程
+    }
+  });
   const currentIndex = ref(-1);
   const isPlaying = ref(false);
   const isPaused = ref(false);
@@ -58,28 +90,6 @@ export const useDictationStore = defineStore('dictation', () => {
     isComplete.value = value;
   }
 
-  function removeWord(index: number) {
-    if (index >= 0 && index < words.value.length) {
-      words.value.splice(index, 1);
-      words.value.forEach((w, i) => {
-        w.index = i;
-      });
-
-      // Adjust currentIndex if needed
-      if (currentIndex.value > index) {
-        currentIndex.value--;
-      } else if (currentIndex.value === index) {
-        // If removing the current word, reset to previous or -1
-        currentIndex.value = Math.max(-1, index - 1);
-      }
-
-      // If we removed the last word and currentIndex is now out of bounds
-      if (currentIndex.value >= words.value.length) {
-        currentIndex.value = words.value.length - 1;
-      }
-    }
-  }
-
   return {
     words,
     repeatCount,
@@ -93,7 +103,6 @@ export const useDictationStore = defineStore('dictation', () => {
     setPlayState,
     setComplete,
     updateWordTranslation,
-    resetPlayState,
-    removeWord
+    resetPlayState
   };
 });

@@ -3,7 +3,6 @@ export interface ToolMeta {
   title: string;
   description: string;
   path: string;
-  icon?: string;
 }
 
 export const tools: ToolMeta[] = [

@@ -1,5 +1,6 @@
 <!-- src/views/dictation/components/WordConfirmModal.vue -->
 <script setup lang="ts">
+import { watchEffect } from 'vue';
 import type { WordItem } from '@/stores/dictation';
 
 const props = defineProps<{ words: WordItem[]; show: boolean }>();
@@ -9,6 +10,16 @@ const emit = defineEmits<{
   (e: 'remove', index: number): void;
   (e: 'updateTranslation', index: number, translation: string): void;
 }>();
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') emit('cancel');
+}
+
+watchEffect((onCleanup) => {
+  if (!props.show) return;
+  document.addEventListener('keydown', onKeydown);
+  onCleanup(() => document.removeEventListener('keydown', onKeydown));
+});
 </script>
 
 <template>

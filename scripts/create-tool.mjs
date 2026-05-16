@@ -79,62 +79,46 @@ const exists = async (p) => {
   }
 };
 
-const vueTemplate = (pascal, title) => `<script setup lang="ts">
+const vueTemplate = (_pascal, title) => `<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import AppShellBackground from '@/components/AppShellBackground.vue';
+
+const router = useRouter();
+function goBack() {
+  router.push('/');
+}
 </script>
 
 <template>
-  <div class="${pascal}-page">
-    <header class="page-header">
-      <h1 class="headline">${title}</h1>
-      <p class="subtitle">在这里描述这个工具做什么</p>
-    </header>
+  <div class="min-h-dvh relative overflow-hidden">
+    <AppShellBackground />
 
-    <section class="placeholder">
-      <p>TODO: 在此实现 ${title}</p>
-    </section>
+    <div class="relative z-10 max-w-2xl mx-auto px-4 py-8 md:py-10">
+      <button
+        @click="goBack"
+        aria-label="返回工具列表"
+        class="mb-5 w-11 h-11 rounded-full flex items-center justify-center bg-white/80 backdrop-blur-sm shadow-md shadow-sky-200/40 text-slate-600 transition-all hover:bg-white active:scale-95"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+
+      <header class="mb-8">
+        <h1 class="text-2xl md:text-[28px] font-semibold text-slate-700 leading-tight">
+          ${title}
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">在这里描述这个工具做什么</p>
+      </header>
+
+      <section
+        class="bg-white/80 backdrop-blur-sm shadow-frosted rounded-3xl p-5 md:p-7 text-slate-500"
+      >
+        <p>TODO: 在此实现 ${title}</p>
+      </section>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.${pascal}-page {
-  --md-primary: #1a73e8;
-  --md-on-surface: #1a1c20;
-  --md-on-surface-variant: #44474e;
-
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 32px 16px;
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
-  color: var(--md-on-surface);
-}
-
-.page-header {
-  margin-bottom: 24px;
-}
-
-.headline {
-  font-size: 28px;
-  font-weight: 400;
-  line-height: 36px;
-  margin: 0 0 8px;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: var(--md-on-surface-variant);
-  margin: 0;
-}
-
-.placeholder {
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px dashed var(--md-on-surface-variant);
-  color: var(--md-on-surface-variant);
-}
-</style>
 `;
 
 const run = async () => {
