@@ -10,6 +10,24 @@
   --color-on-surface-variant: #44474e;
   --color-outline: #74777f;
   --color-outline-variant: #c4c6d0;
+
+  /* Brand gradient (sky-400 → emerald-400) */
+  --color-brand-from: oklch(0.79 0.13 230);
+  --color-brand-to: oklch(0.80 0.13 165);
+
+  /* Page background gradient (sky-100 → sky-50 → emerald-100) */
+  --color-bg-from: oklch(0.96 0.04 230);
+  --color-bg-via: oklch(0.98 0.02 230);
+  --color-bg-to: oklch(0.96 0.04 165);
+
+  /* Frosted surface */
+  --color-surface-frosted: rgb(255 255 255 / 0.8);
+  --color-surface-frosted-strong: rgb(255 255 255 / 0.92);
+
+  /* Frosted shadow (multi-layer, sky-tinted) */
+  --shadow-frosted:
+    0 10px 30px -10px oklch(0.79 0.13 230 / 0.25),
+    0 4px 12px -4px oklch(0.79 0.13 230 / 0.15);
 }
 
 /* Bridge for existing components during transition */
