@@ -38,7 +38,10 @@ export const useDictationStore = defineStore('dictation', () => {
   watch([repeatCount, speechRate], ([r, rate]) => {
     if (typeof localStorage === 'undefined') return;
     try {
-      localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify({ repeatCount: r, speechRate: rate }));
+      localStorage.setItem(
+        CONFIG_STORAGE_KEY,
+        JSON.stringify({ repeatCount: r, speechRate: rate })
+      );
     } catch {
       // localStorage 写入失败（隐私模式 / 配额）就静默放过，不影响主流程
     }
