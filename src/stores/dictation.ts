@@ -14,12 +14,16 @@ export const useDictationStore = defineStore('dictation', () => {
   const currentIndex = ref(-1);
   const isPlaying = ref(false);
   const isPaused = ref(false);
+  // 整轮听写跑完的"庆祝态"。stop() 会把 currentIndex 重置为 -1，
+  // 没有这个 flag 进度就会在最后一个词播完后瞬间塌回 0/N。
+  const isComplete = ref(false);
 
   function setWords(newWords: WordItem[]) {
     words.value = newWords;
     currentIndex.value = -1;
     isPlaying.value = false;
     isPaused.value = false;
+    isComplete.value = false;
   }
 
   function setConfig(repeat: number, rate: number) {
@@ -46,6 +50,12 @@ export const useDictationStore = defineStore('dictation', () => {
     currentIndex.value = -1;
     isPlaying.value = false;
     isPaused.value = false;
+    // 注意：不在这里清 isComplete。stop() 会调用本函数，但跑完最后一个词
+    // 的"庆祝态"需要在 stop() 之后仍然可见，由 setComplete 单独管理。
+  }
+
+  function setComplete(value: boolean) {
+    isComplete.value = value;
   }
 
   function removeWord(index: number) {
@@ -77,9 +87,11 @@ export const useDictationStore = defineStore('dictation', () => {
     currentIndex,
     isPlaying,
     isPaused,
+    isComplete,
     setWords,
     setConfig,
     setPlayState,
+    setComplete,
     updateWordTranslation,
     resetPlayState,
     removeWord

@@ -15,9 +15,12 @@ const store = useDictationStore();
 const { currentWord, progress, canPrev, canNext, speechSupported, hasEnglishVoice, play, pause, resume, prev, next, stop } = useSpeechPlayer();
 
 const isActivelyPlaying = computed(() => store.isPlaying && !store.isPaused);
-const displayIndex = computed(() =>
-  store.currentIndex < 0 ? 0 : store.currentIndex + 1
-);
+// "已完成的单词数"：当前正在播第 N 个时，已经播完的是 N-1 个；跑完整轮
+// 后用总数顶住，避免 stop() 复位 currentIndex 导致徽章塌回。
+const displayIndex = computed(() => {
+  if (store.isComplete) return store.words.length;
+  return store.currentIndex < 0 ? 0 : store.currentIndex;
+});
 
 const previewWord = computed(() =>
   currentWord.value ?? (store.words.length > 0 ? store.words[0] : null)

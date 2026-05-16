@@ -54,6 +54,10 @@ function handleConfirm() {
   showModal.value = false;
   router.push('/dictation/player');
 }
+
+function goBack() {
+  router.push('/');
+}
 </script>
 
 <template>
@@ -61,6 +65,16 @@ function handleConfirm() {
     <DecorativeBackground />
 
     <div class="relative z-10 max-w-2xl mx-auto px-4 py-8 md:py-10">
+      <button @click="goBack" aria-label="返回工具列表"
+        class="mb-5 w-11 h-11 rounded-full flex items-center justify-center
+               bg-white/80 backdrop-blur-sm shadow-md shadow-sky-200/40
+               text-slate-600 transition-all
+               hover:bg-white active:scale-95">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
+
       <header class="mb-8">
         <h1 class="text-2xl md:text-[28px] font-semibold text-slate-700 leading-tight">
           单词听写
