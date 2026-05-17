@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+
 interface TranslateItem {
   word: string;
   translatedText: string;
@@ -11,7 +13,8 @@ interface TranslateResponse<T> {
   data: T;
 }
 
-const ENDPOINT = '/api-blog/translate/batch';
+const API_ORIGIN = Capacitor.isNativePlatform() ? 'https://www.gaopeng.fun' : '';
+const ENDPOINT = `${API_ORIGIN}/api-blog/translate/batch`;
 const BATCH_LIMIT = 50;
 const REQUEST_TIMEOUT_MS = 10000;
 

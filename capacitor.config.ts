@@ -8,6 +8,9 @@ const config: CapacitorConfig = {
     allowMixedContent: false
   },
   plugins: {
+    CapacitorHttp: {
+      enabled: true
+    },
     SplashScreen: {
       launchShowDuration: 500,
       launchAutoHide: true,
@@ -19,7 +22,7 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       style: 'DARK',
-      backgroundColor: '#e0f2fe',
+      backgroundColor: '#ffffff',
       overlaysWebView: false
     }
   }

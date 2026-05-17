@@ -4,7 +4,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import type { Router } from 'vue-router';
 
-const STATUS_BAR_COLOR = '#e0f2fe';
+const STATUS_BAR_COLOR = '#ffffff';
 
 export async function setupNativeShell(router: Router): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
