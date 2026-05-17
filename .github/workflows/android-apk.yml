@@ -44,7 +44,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web assets
-        run: pnpm build
+        env:
+          VITE_APP_X_TOKEN: ${{ secrets.VITE_APP_X_TOKEN }}
+        run: |
+          if [ -z "$VITE_APP_X_TOKEN" ]; then
+            echo "::error::缺少 Secret VITE_APP_X_TOKEN，构建产物无法调用翻译接口"
+            exit 1
+          fi
+          pnpm build
 
       - name: Sync Capacitor Android
         run: pnpm exec cap sync android
