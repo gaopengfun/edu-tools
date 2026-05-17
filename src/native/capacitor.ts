@@ -10,7 +10,7 @@ export async function setupNativeShell(router: Router): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
 
   try {
-    await StatusBar.setStyle({ style: Style.Dark });
+    await StatusBar.setStyle({ style: Style.Light });
     await StatusBar.setBackgroundColor({ color: STATUS_BAR_COLOR });
   } catch (err) {
     console.warn('[capacitor] StatusBar setup failed', err);
