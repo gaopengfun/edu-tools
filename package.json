@@ -12,9 +12,19 @@
     "type-check": "vue-tsc --build",
     "lint": "oxlint . --fix",
     "format": "oxfmt src/",
-    "new:tool": "node scripts/create-tool.mjs"
+    "new:tool": "node scripts/create-tool.mjs",
+    "cap:sync": "cap sync",
+    "android:build": "pnpm build && cap sync android",
+    "android:open": "cap open android",
+    "android:run": "pnpm build && cap run android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
     "@tailwindcss/vite": "^4.3.0",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.3.0",
@@ -23,6 +33,7 @@
     "vue-router": "^5.0.7"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.3.4",
     "@tsconfig/node24": "^24.0.4",
     "@types/ali-oss": "^6.23.3",
     "@types/node": "^24.12.4",
