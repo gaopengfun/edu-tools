@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'fun.gaopeng.edutools',
-  appName: '学习工具',
+  appName: '屹学习',
   webDir: 'dist',
   android: {
     allowMixedContent: false
