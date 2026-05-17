@@ -41,3 +41,4 @@ __screenshots__/
 .superpowers
 .env.local
 .worktrees/
+.claude/settings.local.json
