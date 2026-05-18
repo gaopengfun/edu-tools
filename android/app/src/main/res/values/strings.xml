@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">学习工具</string>
-    <string name="title_activity_main">学习工具</string>
+    <string name="app_name">屹学习</string>
+    <string name="title_activity_main">屹学习</string>
     <string name="package_name">fun.gaopeng.edutools</string>
     <string name="custom_url_scheme">fun.gaopeng.edutools</string>
 </resources>
