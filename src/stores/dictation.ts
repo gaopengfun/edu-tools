@@ -61,6 +61,26 @@ export const useDictationStore = defineStore('dictation', () => {
     isComplete.value = false;
   }
 
+  // Fisher-Yates 洗牌：从头开播前随机重排单词顺序，避免固定顺序被记忆。
+  // 洗完把 index 按新位置重排，保持 WordItem.index 与数组下标一致。
+  function shuffleWords() {
+    const arr = words.value.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const a = arr[i];
+      const b = arr[j];
+      // i、j 均在界内，a/b 恒存在；判空只为满足严格索引类型
+      if (a && b) {
+        arr[i] = b;
+        arr[j] = a;
+      }
+    }
+    arr.forEach((w, i) => {
+      w.index = i;
+    });
+    words.value = arr;
+  }
+
   function setConfig(repeat: number, rate: number) {
     repeatCount.value = repeat;
     speechRate.value = rate;
@@ -102,6 +122,7 @@ export const useDictationStore = defineStore('dictation', () => {
     isPaused,
     isComplete,
     setWords,
+    shuffleWords,
     setConfig,
     setPlayState,
     setComplete,

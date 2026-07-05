@@ -247,6 +247,8 @@ export function useSpeechPlayer() {
     if (store.words.length === 0 || !speechSupported) return;
     // 从初始态或上一轮完成态按 play 都视作新一轮，清掉庆祝态
     store.setComplete(false);
+    // 每次从头开播都重新洗牌，避免固定顺序被记忆；resume/prev/next 走别的路径不受影响
+    if (store.currentIndex < 0) store.shuffleWords();
     const startIndex = store.currentIndex < 0 ? 0 : store.currentIndex;
     playFrom(startIndex);
   }
